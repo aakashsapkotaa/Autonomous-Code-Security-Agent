@@ -38,7 +38,7 @@ export default function Input({ id, label, type, placeholder, icon, helperLink }
           <IconComponent className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant/50 group-focus-within:text-primary transition-colors" />
         )}
         <input
-          className={`w-full bg-surface-container-low border-0 rounded-xl py-4 ${IconComponent ? 'pl-12' : 'pl-4'} pr-4 text-on-background placeholder:text-outline/50 focus:ring-2 focus:ring-primary/50 transition-all outline-none`}
+          className={`w-full bg-surface-container-low border border-white/10 rounded-xl py-4 ${IconComponent ? 'pl-12' : 'pl-4'} pr-4 text-on-background placeholder:text-outline/70 focus:ring-2 focus:ring-primary/35 focus:border-white/30 transition-all outline-none`}
           id={id}
           placeholder={placeholder}
           type={type}

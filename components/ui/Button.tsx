@@ -21,8 +21,8 @@ export default function Button({
   const widthStyles = fullWidth ? 'w-full' : '';
   
   const variantStyles = {
-    primary: 'bg-gradient-to-r from-primary to-primary-container text-on-primary-container shadow-[0_8px_20px_-6px_rgba(0,227,253,0.3)] hover:scale-[1.02] active:scale-[0.98]',
-    secondary: 'flex items-center justify-center gap-3 bg-surface-container-highest hover:bg-surface-bright text-on-surface border border-outline-variant/10 group',
+    primary: 'bg-gradient-to-r from-white to-zinc-300 text-black shadow-[0_16px_40px_-18px_rgba(255,255,255,0.65)] hover:scale-[1.02] active:scale-[0.98]',
+    secondary: 'flex items-center justify-center gap-3 bg-surface-container-highest hover:bg-surface-bright text-on-surface border border-white/10 group',
   };
 
   return (

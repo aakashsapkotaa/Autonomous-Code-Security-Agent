@@ -25,18 +25,20 @@ export default function GlassFrame({ children, className = '' }: GlassFrameProps
       onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
       className={`
-        relative rounded-2xl border backdrop-blur-xl transition-all duration-300 overflow-hidden
+        relative overflow-hidden rounded-2xl border backdrop-blur-2xl transition-all duration-300
         ${isHovered 
-          ? 'bg-white/15 border-white/40 shadow-[0_8px_32px_0_rgba(255,255,255,0.1)]' 
-          : 'bg-white/5 border-white/20 shadow-[0_8px_32px_0_rgba(255,255,255,0.05)]'
+          ? 'bg-white/10 border-white/24 shadow-[0_18px_44px_-26px_rgba(255,255,255,0.16)]' 
+          : 'bg-white/6 border-white/10 shadow-[0_18px_44px_-30px_rgba(255,255,255,0.1)]'
         }
         ${className}
       `}
     >
+      <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/[0.1] via-white/[0.025] to-transparent" />
+
       {/* Shine effect on hover */}
       {isHovered && (
         <div 
-          className="absolute w-40 h-40 bg-white/10 rounded-full blur-3xl pointer-events-none transition-all duration-300"
+          className="pointer-events-none absolute h-40 w-40 rounded-full bg-white/10 blur-3xl transition-all duration-300"
           style={{
             top: `${mousePos.y - 80}px`,
             left: `${mousePos.x - 80}px`,
@@ -46,7 +48,7 @@ export default function GlassFrame({ children, className = '' }: GlassFrameProps
 
       {/* Gradient border effect */}
       {isHovered && (
-        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none rounded-2xl" />
+        <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/18 via-transparent to-transparent" />
       )}
       
       {/* Content */}
