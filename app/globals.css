@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-headline: var(--font-space-grotesk), sans-serif;
+
+  --color-background: #0a0e14;
+  --color-on-background: #f1f3fc;
+  
+  --color-primary: #81ecff;
+  --color-primary-container: #00e3fd;
+  --color-on-primary-container: #004d57;
+  
+  --color-secondary: #6e9bff;
+  --color-secondary-container: #0058ca;
+  
+  --color-tertiary: #ff7350;
+  --color-tertiary-container: #fc3c00;
+  
+  --color-surface: #0a0e14;
+  --color-surface-container: #151a21;
+  --color-surface-container-low: #0f141a;
+  --color-surface-container-high: #1b2028;
+  --color-surface-container-highest: #20262f;
+  --color-surface-bright: #262c36;
+  --color-surface-variant: #20262f;
+  
+  --color-on-surface: #f1f3fc;
+  --color-on-surface-variant: #a8abb3;
+  
+  --color-outline: #72757d;
+  --color-outline-variant: #44484f;
+  
+  --color-error: #ff716c;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-background font-sans;
+  }
+}
+
+@layer utilities {
+  .neon-glow {
+    box-shadow: 0 0 40px 12px rgba(129, 236, 255, 0.06);
+  }
+  
+  .glass-panel {
+    background: rgba(32, 38, 47, 0.6);
+    backdrop-filter: blur(12px);
+  }
+  
+  .mesh-bg {
+    background-color: #0a0e14;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(0, 229, 255, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(110, 155, 255, 0.05) 0px, transparent 50%);
+  }
+}
