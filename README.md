@@ -1,15 +1,19 @@
+# Autonomous-Code-Security-Agent
+
 # SecureShift Dashboard
 
-A Next.js + Tailwind CSS dashboard with reusable components, featuring a modern cyberpunk-inspired design.
+A Next.js + Tailwind CSS dashboard with reusable components, featuring a modern cyberpunk-inspired design for security monitoring and analysis.
 
 ## Features
 
 - Next.js 15 with App Router
 - TypeScript
-- Tailwind CSS 4
+- Tailwind CSS 4 with custom design tokens
 - Framer Motion animations
 - Reusable component architecture
 - Custom design system with Material Design 3 tokens
+- Glass-morphism UI effects
+- Responsive layout
 
 ## Project Structure
 
@@ -57,13 +61,33 @@ npm run dev
 - **LoginForm**: Glass-morphism login panel with social auth
 - **Footer**: Status indicators and links
 
-## Customization
+## Design System
 
-Design tokens are defined in `tailwind.config.ts`. Modify colors, fonts, and spacing there to match your brand.
+The application uses a custom cyberpunk-inspired design system with:
+- Custom color palette (neon blues, purples, and oranges)
+- Material Design 3 naming conventions
+- Glass-morphism effects
+- Neon glow shadows
+- Mesh gradient backgrounds
 
-## Build
+Design tokens are defined in `app/globals.css` using Tailwind v4's `@theme` directive.
+
+## Build for Production
 
 ```bash
 npm run build
 npm start
 ```
+
+## Technologies
+
+- **Framework**: Next.js 15
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS 4
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Fonts**: Inter & Space Grotesk (Google Fonts)
+
+## License
+
+Apache-2.0
