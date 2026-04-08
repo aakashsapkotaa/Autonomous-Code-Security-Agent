@@ -1,35 +1,82 @@
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/__pycache__/
+mcp_agents/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
 
-# testing
-/coverage
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
 
-# next.js
-/.next/
-/out/
+# Next.js
+.next/
+frontend/.next/
+out/
+build/
+dist/
 
-# production
+# Production
 /build
 /dist
 
-# misc
+# Testing
+coverage/
+.nyc_output/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-*.pem
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Python
+*.py[cod]
+*$py.class
+__pycache__/
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
 
-# local env files
-.env*.local
-.env
+# Celery
+celerybeat-schedule
+celerybeat.pid
 
-# vercel
-.vercel
+# Docker
+*.log
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Reports
+reports/
+*.json
+*.html
+*.pdf
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Old structure (to be removed)
+changes of frontend/

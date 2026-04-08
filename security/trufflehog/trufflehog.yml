@@ -1,0 +1,19 @@
+# TruffleHog configuration for secret detection
+rules:
+  - id: aws-access-key
+    pattern: 'AKIA[0-9A-Z]{16}'
+    description: 'AWS Access Key ID'
+  
+  - id: github-token
+    pattern: 'ghp_[0-9a-zA-Z]{36}'
+    description: 'GitHub Personal Access Token'
+  
+  - id: slack-token
+    pattern: 'xox[baprs]-[0-9]{10,12}-[0-9]{10,12}-[a-zA-Z0-9]{24,32}'
+    description: 'Slack Token'
+
+exclude:
+  - '*.md'
+  - '*.txt'
+  - 'node_modules/**'
+  - '.git/**'

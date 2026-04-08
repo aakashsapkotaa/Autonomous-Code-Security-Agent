@@ -1,0 +1,23 @@
+# MCP Agents Dependencies
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+httpx==0.27.0
+aiohttp==3.9.1
+supabase==2.9.0
+python-dotenv==1.0.0
+pydantic==2.9.0
+pydantic-settings==2.5.0
+
+# Security Tools
+bandit==1.7.10
+truffleHog==2.2.1
+safety==3.2.8
+
+# Utilities
+python-dateutil==2.8.2
+python-multipart==0.0.12
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+pytest==8.3.3
+pytest-asyncio==0.24.0
+boto3==1.35.0

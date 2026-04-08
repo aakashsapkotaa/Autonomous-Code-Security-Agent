@@ -1,0 +1,62 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install security tools
+        run: |
+          pip install bandit safety truffleHog
+      
+      - name: Run Bandit (Python security)
+        run: |
+          bandit -r backend/ mcp_agents/ -f json -o bandit-report.json || true
+      
+      - name: Run Safety (Dependency check)
+        run: |
+          safety check --json > safety-report.json || true
+      
+      - name: Run TruffleHog (Secret detection)
+        run: |
+          truffleHog --json --regex --entropy=False . > trufflehog-report.json || true
+      
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+            safety-report.json
+            trufflehog-report.json
+      
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const bandit = JSON.parse(fs.readFileSync('bandit-report.json', 'utf8'));
+            const comment = `## Security Scan Results\n\n**Bandit**: ${bandit.metrics._totals.loc} lines scanned, ${bandit.results.length} issues found`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
