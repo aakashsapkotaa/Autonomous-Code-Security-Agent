@@ -56,7 +56,8 @@ export default function HelpBot({ open, onClose }: HelpBotProps) {
     setAiResponse('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/chatbot/chat', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/chatbot/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
