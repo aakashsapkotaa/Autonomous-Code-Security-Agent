@@ -104,9 +104,8 @@ async def github_webhook(request: Request, db: SupabaseDB = Depends()):
             # Create new scan
             scan = db.create_scan(repo_id)
             
-            # Trigger background scan
-            from backend.celery_worker import scan_repository
-            scan_repository.delay(scan["id"], repo_url)
+            # TODO: Implement background scanning
+            # For now, just create the scan record
             
             return {"status": "scan_triggered", "scan_id": scan["id"]}
     

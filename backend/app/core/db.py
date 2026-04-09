@@ -8,13 +8,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class Database:
+class SupabaseDB:
     """Supabase database client"""
     
     def __init__(self):
         self.client: Client = create_client(
-            settings.https://ayeoqnvldhrazjpvbrey.supabase.co,
-            settings.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5ZW9xbnZsZGhyYXpqcHZicmV5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTY2MzI0MCwiZXhwIjoyMDkxMjM5MjQwfQ.w3RZhHch0qRfsQtEx4mgMuJVeRT69CvPLNeDIWXXPYw
+            settings.SUPABASE_URL,
+            settings.SUPABASE_SERVICE_ROLE_KEY
         )
     
     async def create_repository(self, data: Dict[str, Any]) -> Optional[Dict]:
@@ -124,4 +124,4 @@ class Database:
             return False
 
 # Global database instance
-db = Database()
+db = SupabaseDB()

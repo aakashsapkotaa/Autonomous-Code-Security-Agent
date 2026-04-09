@@ -5,13 +5,15 @@ import { getRepositories } from '@/lib/database';
 import { getCurrentUser, signOut } from '@/lib/auth';
 import type { Repository } from '@/lib/types';
 import RepoList from './RepoList';
-import { Shield, AlertTriangle, CheckCircle, LogOut } from 'lucide-react';
+import HelpBot from './HelpBot';
+import { Shield, AlertTriangle, CheckCircle, LogOut, Bot } from 'lucide-react';
 
 export default function Dashboard() {
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [helpBotOpen, setHelpBotOpen] = useState(false);
 
   useEffect(() => {
     initDashboard();
@@ -22,8 +24,8 @@ export default function Dashboard() {
     const { data: userData, error: userError } = await getCurrentUser();
     
     if (userError || !userData) {
-      setError('Please log in to view your repositories');
-      setLoading(false);
+      // Redirect to login if not authenticated
+      window.location.href = '/';
       return;
     }
 
@@ -48,8 +50,14 @@ export default function Dashboard() {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    window.location.reload();
+    const { error } = await signOut();
+    if (error) {
+      console.error('Sign out error:', error);
+      alert('Failed to sign out. Please try again.');
+      return;
+    }
+    // Redirect to home page after sign out
+    window.location.href = '/';
   };
 
   if (loading) {
@@ -167,6 +175,21 @@ export default function Dashboard() {
 
       {/* Repository List */}
       {user && <RepoList repositories={repositories} onRefresh={loadRepositories} userId={user.id} />}
+
+      {/* Floating Help Bot Button */}
+      <div className="fixed bottom-8 right-8 z-50">
+        <div className="relative">
+          <HelpBot open={helpBotOpen} onClose={() => setHelpBotOpen(false)} />
+          <button
+            onClick={() => setHelpBotOpen(!helpBotOpen)}
+            className="flex items-center gap-3 px-6 py-4 bg-primary hover:bg-primary/90 text-on-primary rounded-full shadow-lg transition-all hover:scale-105"
+            aria-label="Open SecureShift AI Bot"
+          >
+            <Bot className="w-5 h-5" />
+            <span className="font-medium">Need Help?</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

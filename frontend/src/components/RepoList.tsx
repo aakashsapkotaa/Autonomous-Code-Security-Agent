@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { addRepository, createScan } from '@/lib/database';
 import type { Repository } from '@/lib/types';
-import { Github, Plus, Play, ExternalLink, Calendar } from 'lucide-react';
+import { GitBranch, Plus, Play, ExternalLink, Calendar } from 'lucide-react';
 import GlassFrame from './GlassFrame';
 
 interface RepoListProps {
@@ -122,7 +122,7 @@ export default function RepoList({ repositories, onRefresh, userId }: RepoListPr
       {/* Repository Cards */}
       {repositories.length === 0 ? (
         <GlassFrame className="p-12 text-center">
-          <Github className="w-16 h-16 text-on-surface-variant/30 mx-auto mb-4" />
+          <GitBranch className="w-16 h-16 text-on-surface-variant/30 mx-auto mb-4" />
           <h3 className="text-xl font-headline font-bold text-on-background mb-2">
             No Repositories Yet
           </h3>
@@ -144,7 +144,7 @@ export default function RepoList({ repositories, onRefresh, userId }: RepoListPr
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Github className="w-5 h-5 text-primary" />
+                    <GitBranch className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-headline font-bold text-on-background">

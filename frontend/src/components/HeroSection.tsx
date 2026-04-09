@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import GlassFrame from './GlassFrame';
 
 const containerVariants = {

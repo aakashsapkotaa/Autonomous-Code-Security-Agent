@@ -1,11 +1,11 @@
-import { AtSign, Lock } from 'lucide-react';
+import { AtSign, Lock, User } from 'lucide-react';
 
 interface InputProps {
   id: string;
   label: string;
   type: string;
   placeholder: string;
-  icon?: 'email' | 'lock';
+  icon?: 'email' | 'lock' | 'user';
   helperLink?: {
     text: string;
     href: string;
@@ -13,7 +13,7 @@ interface InputProps {
 }
 
 export default function Input({ id, label, type, placeholder, icon, helperLink }: InputProps) {
-  const IconComponent = icon === 'email' ? AtSign : icon === 'lock' ? Lock : null;
+  const IconComponent = icon === 'email' ? AtSign : icon === 'lock' ? Lock : icon === 'user' ? User : null;
 
   return (
     <div className="space-y-1.5">

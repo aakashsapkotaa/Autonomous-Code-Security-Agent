@@ -1,3 +1,8 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
@@ -5,6 +10,20 @@ import LoginForm from '@/components/LoginForm';
 import ParticleBackground from '@/components/ParticleBackground';
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkAuth = async () => {
+      const { data: user } = await getCurrentUser();
+      if (user) {
+        // Redirect to dashboard if already authenticated
+        router.push('/dashboard');
+      }
+    };
+    checkAuth();
+  }, [router]);
+
   return (
     <div className="min-h-screen flex flex-col mesh-bg selection:bg-primary-container selection:text-on-primary-container">
       <ParticleBackground />

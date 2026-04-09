@@ -5,7 +5,7 @@ Main application entrypoint
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import scans, repositories, vulnerabilities, health, github
+from app.api.routes import scans, repositories, vulnerabilities, health, github, chatbot
 
 # Import models to ensure they're registered
 from app.models import scan, repository, vulnerability, ai_fix
@@ -33,6 +33,7 @@ app.include_router(scans.router, prefix="/api/scans", tags=["scans"])
 app.include_router(repositories.router, prefix="/api/repositories", tags=["repositories"])
 app.include_router(vulnerabilities.router, prefix="/api/vulnerabilities", tags=["vulnerabilities"])
 app.include_router(github.router, prefix="/api/github", tags=["github"])
+app.include_router(chatbot.router, prefix="/api/chatbot", tags=["chatbot"])
 
 @app.get("/")
 async def root():

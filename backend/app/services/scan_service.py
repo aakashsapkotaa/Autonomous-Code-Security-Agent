@@ -85,9 +85,9 @@ class ScanService:
                 "info"
             )
             
-            # Queue Celery task (imported here to avoid circular imports)
-            from backend.celery_worker import scan_repository
-            scan_repository.delay(request.repo_url, scan["id"], request.branch)
+            # TODO: Implement actual scanning logic
+            # For now, just return pending status
+            # In production, this would trigger a background job
             
             return ScanResponse(
                 scan_id=scan["id"],

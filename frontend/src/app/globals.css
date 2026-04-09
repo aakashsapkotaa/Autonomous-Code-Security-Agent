@@ -1,39 +1,41 @@
-@import "tailwindcss";
-
-@theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-headline: var(--font-space-grotesk), sans-serif;
-
-  --color-background: #050505;
-  --color-on-background: #f7f7f7;
-  --color-primary: #ffffff;
-  --color-primary-container: #d9d9d9;
-  --color-on-primary-container: #050505;
-  --color-secondary: #cfcfcf;
-  --color-secondary-container: #8d8d8d;
-  --color-tertiary: #b8b8b8;
-  --color-tertiary-container: #7a7a7a;
-  --color-surface: #050505;
-  --color-surface-container: #111111;
-  --color-surface-container-low: #0b0b0b;
-  --color-surface-container-high: #161616;
-  --color-surface-container-highest: #1d1d1d;
-  --color-surface-bright: #252525;
-  --color-surface-variant: #1a1a1a;
-  --color-on-surface: #f2f2f2;
-  --color-on-surface-variant: #bdbdbd;
-  --color-outline: #7f7f7f;
-  --color-outline-variant: #333333;
-  --color-error: #d6d6d6;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
+  :root {
+    --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    --font-headline: var(--font-space-grotesk), sans-serif;
+
+    --color-background: #050505;
+    --color-on-background: #f7f7f7;
+    --color-primary: #ffffff;
+    --color-primary-container: #d9d9d9;
+    --color-on-primary-container: #050505;
+    --color-secondary: #cfcfcf;
+    --color-secondary-container: #8d8d8d;
+    --color-tertiary: #b8b8b8;
+    --color-tertiary-container: #7a7a7a;
+    --color-surface: #050505;
+    --color-surface-container: #111111;
+    --color-surface-container-low: #0b0b0b;
+    --color-surface-container-high: #161616;
+    --color-surface-container-highest: #1d1d1d;
+    --color-surface-bright: #252525;
+    --color-surface-variant: #1a1a1a;
+    --color-on-surface: #f2f2f2;
+    --color-on-surface-variant: #bdbdbd;
+    --color-outline: #7f7f7f;
+    --color-outline-variant: #333333;
+    --color-error: #d6d6d6;
+  }
+
   html {
     color-scheme: dark;
   }
 
   body {
-    @apply bg-background text-on-background font-sans;
+    @apply bg-[#050505] text-[#f7f7f7] font-sans;
   }
 }
 
