@@ -91,9 +91,9 @@ export default function TestConnectionPage() {
           </h2>
           <div className="space-y-2 text-sm font-mono">
             <div>
-              <span className="text-on-surface-variant">NEXT_PUBLIC_https://ayeoqnvldhrazjpvbrey.supabase.co:</span>{' '}
+              <span className="text-on-surface-variant">NEXT_PUBLIC_SUPABASE_URL:</span>{' '}
               <span className="text-on-background">
-                {process.env.NEXT_PUBLIC_https://ayeoqnvldhrazjpvbrey.supabase.co || '❌ Not set'}
+                {process.env.NEXT_PUBLIC_SUPABASE_URL || '❌ Not set'}
               </span>
             </div>
             <div>
