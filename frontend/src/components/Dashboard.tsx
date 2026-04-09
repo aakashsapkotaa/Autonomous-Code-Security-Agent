@@ -174,7 +174,7 @@ export default function Dashboard() {
       </div>
 
       {/* Repository List */}
-      {user && <RepoList repositories={repositories} onRefresh={loadRepositories} userId={user.id} />}
+      <RepoList repositories={repositories} onRefresh={loadRepositories} userId={user?.id || null} />
 
       {/* Floating Help Bot Button */}
       <div className="fixed bottom-8 right-8 z-50">

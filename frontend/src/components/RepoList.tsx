@@ -9,7 +9,7 @@ import GlassFrame from './GlassFrame';
 interface RepoListProps {
   repositories: Repository[];
   onRefresh: () => void;
-  userId: string;
+  userId: string | null;
 }
 
 export default function RepoList({ repositories, onRefresh, userId }: RepoListProps) {

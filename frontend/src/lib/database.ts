@@ -30,13 +30,9 @@ export async function getRepositories(): Promise<DatabaseResponse<Repository[]>>
 export async function addRepository(
   repoUrl: string,
   repoName: string,
-  userId: string
+  userId: string | null
 ): Promise<DatabaseResponse<Repository>> {
   try {
-    if (!userId) {
-      return { data: null, error: 'User ID is required' };
-    }
-
     const { data, error } = await supabase
       .from('repositories')
       .insert([
