@@ -10,7 +10,7 @@ export default function TestConnectionPage() {
     message: string;
     data?: any;
   }>({ status: 'idle', message: '' });
-
+  
   const runManualTest = async () => {
     setManualTest({ status: 'testing', message: 'Testing...' });
 
