@@ -90,7 +90,7 @@ export default function Dashboard() {
                 </summary>
                 <ul className="list-disc list-inside mt-2 space-y-1">
                   <li>Check if your .env.local file exists with correct values</li>
-                  <li>Verify NEXT_PUBLIC_https://ayeoqnvldhrazjpvbrey.supabase.co is set correctly</li>
+                  <li>Verify NEXT_PUBLIC_SUPABASE_URL is set correctly</li>
                   <li>Verify NEXT_PUBLIC_SUPABASE_ANON_KEY is a valid JWT token</li>
                   <li>Ensure the database schema has been applied in Supabase</li>
                   <li>Check if Row Level Security (RLS) policies allow anonymous access</li>
