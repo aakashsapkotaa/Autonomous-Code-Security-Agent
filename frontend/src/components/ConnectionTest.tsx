@@ -18,7 +18,7 @@ export default function ConnectionTest() {
 
     try {
       // Check environment variables
-      const url = process.env.NEXT_PUBLIC_https://ayeoqnvldhrazjpvbrey.supabase.co;
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
       const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
       testDetails.push(`URL: ${url ? '✅ Set' : '❌ Missing'}`);
