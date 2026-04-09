@@ -7,6 +7,7 @@ interface ButtonProps {
   fullWidth?: boolean;
   icon?: ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
 export default function Button({ 
@@ -15,7 +16,8 @@ export default function Button({
   variant = 'primary', 
   fullWidth = false,
   icon,
-  onClick 
+  onClick,
+  disabled = false
 }: ButtonProps) {
   const baseStyles = 'font-headline font-bold py-4 rounded-xl transition-all cursor-pointer';
   const widthStyles = fullWidth ? 'w-full' : '';
@@ -29,7 +31,8 @@ export default function Button({
     <button
       type={type}
       onClick={onClick}
-      className={`${baseStyles} ${widthStyles} ${variantStyles[variant]}`}
+      disabled={disabled}
+      className={`${baseStyles} ${widthStyles} ${variantStyles[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       {icon && icon}
       {children}
