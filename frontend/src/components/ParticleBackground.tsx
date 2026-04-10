@@ -41,19 +41,19 @@ export default function ParticleBackground() {
 
     // Particle array
     const particles: Particle[] = [];
-    const particleCount = 80;
+    const particleCount = 120; // Increased from 80
 
     // Initialize particles with vibrant colors
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 1.2,
-        vy: (Math.random() - 0.5) * 1.2,
-        radius: Math.random() * 2.5 + 1,
-        opacity: Math.random() * 0.6 + 0.4,
-        hue: Math.random() * 60 + 180, // Blue to cyan range
-        pulseSpeed: Math.random() * 0.02 + 0.01,
+        vx: (Math.random() - 0.5) * 1.5, // Increased speed
+        vy: (Math.random() - 0.5) * 1.5,
+        radius: Math.random() * 3 + 1.5, // Larger particles
+        opacity: Math.random() * 0.7 + 0.5, // More visible
+        hue: Math.random() * 80 + 170, // Wider color range (cyan to purple)
+        pulseSpeed: Math.random() * 0.03 + 0.015,
         pulsePhase: Math.random() * Math.PI * 2,
       });
     }
@@ -65,7 +65,7 @@ export default function ParticleBackground() {
       time += 0.01;
 
       // Clear canvas with fade effect
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; // Slower fade for more trails
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Update and draw particles
@@ -75,10 +75,10 @@ export default function ParticleBackground() {
         const dy = mouseRef.current.y - particle.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        if (distance < 200) {
-          const force = (200 - distance) / 200;
-          particle.vx += (dx / distance) * force * 0.05;
-          particle.vy += (dy / distance) * force * 0.05;
+        if (distance < 250) { // Increased interaction radius
+          const force = (250 - distance) / 250;
+          particle.vx += (dx / distance) * force * 0.08; // Stronger attraction
+          particle.vy += (dy / distance) * force * 0.08;
         }
 
         // Update position
@@ -107,19 +107,19 @@ export default function ParticleBackground() {
         // Draw particle with glow
         const gradient = ctx.createRadialGradient(
           particle.x, particle.y, 0,
-          particle.x, particle.y, currentRadius * 3
+          particle.x, particle.y, currentRadius * 4 // Larger glow
         );
-        gradient.addColorStop(0, `hsla(${particle.hue}, 80%, 60%, ${currentOpacity})`);
-        gradient.addColorStop(0.5, `hsla(${particle.hue}, 70%, 50%, ${currentOpacity * 0.5})`);
-        gradient.addColorStop(1, `hsla(${particle.hue}, 60%, 40%, 0)`);
+        gradient.addColorStop(0, `hsla(${particle.hue}, 85%, 65%, ${currentOpacity})`);
+        gradient.addColorStop(0.4, `hsla(${particle.hue}, 75%, 55%, ${currentOpacity * 0.6})`);
+        gradient.addColorStop(1, `hsla(${particle.hue}, 65%, 45%, 0)`);
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, currentRadius * 3, 0, Math.PI * 2);
+        ctx.arc(particle.x, particle.y, currentRadius * 4, 0, Math.PI * 2);
         ctx.fill();
 
         // Draw core
-        ctx.fillStyle = `hsla(${particle.hue}, 90%, 70%, ${currentOpacity})`;
+        ctx.fillStyle = `hsla(${particle.hue}, 95%, 75%, ${currentOpacity})`;
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, currentRadius, 0, Math.PI * 2);
         ctx.fill();
@@ -131,8 +131,8 @@ export default function ParticleBackground() {
             const dy = particle.y - otherParticle.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (distance < 180) {
-              const opacity = 0.4 * (1 - distance / 180);
+            if (distance < 200) { // Increased connection distance
+              const opacity = 0.5 * (1 - distance / 200); // More visible connections
               const avgHue = (particle.hue + otherParticle.hue) / 2;
               
               // Create gradient for line
@@ -140,11 +140,11 @@ export default function ParticleBackground() {
                 particle.x, particle.y,
                 otherParticle.x, otherParticle.y
               );
-              lineGradient.addColorStop(0, `hsla(${particle.hue}, 70%, 60%, ${opacity})`);
-              lineGradient.addColorStop(1, `hsla(${otherParticle.hue}, 70%, 60%, ${opacity})`);
+              lineGradient.addColorStop(0, `hsla(${particle.hue}, 75%, 65%, ${opacity})`);
+              lineGradient.addColorStop(1, `hsla(${otherParticle.hue}, 75%, 65%, ${opacity})`);
 
               ctx.strokeStyle = lineGradient;
-              ctx.lineWidth = 1.5;
+              ctx.lineWidth = 2; // Thicker lines
               ctx.beginPath();
               ctx.moveTo(particle.x, particle.y);
               ctx.lineTo(otherParticle.x, otherParticle.y);

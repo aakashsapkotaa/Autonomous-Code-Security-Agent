@@ -1,19 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { getRepositories } from '@/lib/database';
 import { getCurrentUser, signOut } from '@/lib/auth';
 import type { Repository } from '@/lib/types';
 import RepoList from './RepoList';
 import HelpBot from './HelpBot';
-import { Shield, AlertTriangle, CheckCircle, LogOut, Bot } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, LogOut } from 'lucide-react';
 
 export default function Dashboard() {
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
-  const [helpBotOpen, setHelpBotOpen] = useState(false);
 
   useEffect(() => {
     initDashboard();
@@ -62,11 +62,11 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="w-full max-w-6xl mx-auto px-6 py-12">
+      <div className="w-full max-w-6xl mx-auto px-6 py-12 relative z-10">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-            <p className="text-on-surface-variant">Loading repositories...</p>
+            <div className="w-12 h-12 border-4 border-neon-cyan/30 border-t-neon-cyan rounded-full animate-spin" />
+            <p className="text-on-surface-variant animate-pulse">Loading repositories...</p>
           </div>
         </div>
       </div>
@@ -75,12 +75,12 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="w-full max-w-6xl mx-auto px-6 py-12">
+      <div className="w-full max-w-6xl mx-auto px-6 py-12 relative z-10">
         <div className="space-y-6">
-          <div className="bg-error/10 border border-error/20 rounded-xl p-6 flex items-start gap-4">
-            <AlertTriangle className="w-6 h-6 text-error flex-shrink-0 mt-1" />
+          <div className="glass-panel border border-neon-pink/50 rounded-xl p-6 flex items-start gap-4">
+            <AlertTriangle className="w-6 h-6 text-neon-pink flex-shrink-0 mt-1" />
             <div>
-              <h3 className="text-lg font-headline font-bold text-error mb-2">
+              <h3 className="text-lg font-headline font-bold text-neon-pink mb-2">
                 Error Loading Data
               </h3>
               <p className="text-on-surface-variant mb-2">{error}</p>
@@ -98,7 +98,7 @@ export default function Dashboard() {
               </details>
               <button
                 onClick={loadRepositories}
-                className="mt-4 px-4 py-2 bg-error/20 hover:bg-error/30 text-error rounded-lg transition-colors"
+                className="mt-4 px-4 py-2 bg-neon-pink/20 hover:bg-neon-pink/30 text-neon-pink rounded-lg transition-colors"
               >
                 Retry
               </button>
@@ -110,86 +110,102 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-6 py-12">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
       {/* Header with Sign Out */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 sm:mb-12">
         <div>
-          <h1 className="text-3xl font-headline font-bold text-on-background">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-headline font-bold bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent">
             Security Dashboard
           </h1>
           {user && (
-            <p className="text-sm text-on-surface-variant mt-1">
-              Welcome, {user.email}
+            <p className="text-xs sm:text-sm text-on-surface-variant mt-2">
+              👋 Welcome back, <span className="text-neon-cyan font-semibold break-all">{user.email}</span>
             </p>
           )}
         </div>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={handleSignOut}
-          className="flex items-center gap-2 px-4 py-2 bg-surface-container-high hover:bg-surface-bright text-on-surface rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-neon-pink/20 to-accent-2/20 hover:from-neon-pink/40 hover:to-accent-2/40 text-neon-pink border border-neon-pink/50 rounded-lg transition-all duration-300 whitespace-nowrap"
         >
           <LogOut className="w-4 h-4" />
           Sign Out
-        </button>
+        </motion.button>
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="glass-panel p-6 rounded-xl border border-outline-variant/20">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-              <Shield className="w-6 h-6 text-primary" />
-            </div>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12"
+      >
+        {/* Repositories Card */}
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="glass-panel p-6 rounded-xl border-neon card-hover relative overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
+          <div className="flex items-center justify-between relative z-10">
             <div>
-              <p className="text-2xl font-headline font-bold text-on-background">
+              <p className="text-sm text-neon-cyan/80 uppercase font-bold tracking-wider mb-2">
+                Repositories
+              </p>
+              <p className="text-3xl font-headline font-bold gradient-text-cyan">
                 {repositories.length}
               </p>
-              <p className="text-sm text-on-surface-variant">Total Repositories</p>
+            </div>
+            <div className="w-14 h-14 bg-gradient-to-br from-neon-cyan/20 to-neon-blue/10 rounded-lg flex items-center justify-center shadow-neon-cyan">
+              <Shield className="w-7 h-7 text-neon-cyan" />
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="glass-panel p-6 rounded-xl border border-outline-variant/20">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6 text-secondary" />
-            </div>
+        {/* Active Scans Card */}
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="glass-panel-purple p-6 rounded-xl border-neon-purple card-hover relative overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-neon-purple/5 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
+          <div className="flex items-center justify-between relative z-10">
             <div>
-              <p className="text-2xl font-headline font-bold text-on-background">0</p>
-              <p className="text-sm text-on-surface-variant">Active Scans</p>
+              <p className="text-sm text-neon-purple/80 uppercase font-bold tracking-wider mb-2">
+                Active Scans
+              </p>
+              <p className="text-3xl font-headline font-bold bg-gradient-to-r from-neon-purple to-accent-1 bg-clip-text text-transparent">
+                0
+              </p>
+            </div>
+            <div className="w-14 h-14 bg-gradient-to-br from-neon-purple/20 to-accent-1/10 rounded-lg flex items-center justify-center shadow-neon-purple">
+              <AlertTriangle className="w-7 h-7 text-neon-purple" />
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="glass-panel p-6 rounded-xl border border-outline-variant/20">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-tertiary/10 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-tertiary" />
-            </div>
+        {/* Vulnerabilities Fixed Card */}
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="glass-panel p-6 rounded-xl border border-neon-pink/30 hover:border-neon-pink/60 card-hover relative overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-neon-pink/5 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
+          <div className="flex items-center justify-between relative z-10">
             <div>
-              <p className="text-2xl font-headline font-bold text-on-background">0</p>
-              <p className="text-sm text-on-surface-variant">Vulnerabilities Fixed</p>
+              <p className="text-sm text-neon-pink/80 uppercase font-bold tracking-wider mb-2">
+                Fixed
+              </p>
+              <p className="text-3xl font-headline font-bold bg-gradient-to-r from-neon-pink to-accent-2 bg-clip-text text-transparent">
+                0
+              </p>
+            </div>
+            <div className="w-14 h-14 bg-gradient-to-br from-neon-pink/20 to-accent-2/10 rounded-lg flex items-center justify-center shadow-neon-pink">
+              <CheckCircle className="w-7 h-7 text-neon-pink" />
             </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Repository List */}
       <RepoList repositories={repositories} onRefresh={loadRepositories} userId={user?.id || null} />
-
-      {/* Floating Help Bot Button */}
-      <div className="fixed bottom-8 right-8 z-50">
-        <div className="relative">
-          <HelpBot open={helpBotOpen} onClose={() => setHelpBotOpen(false)} />
-          <button
-            onClick={() => setHelpBotOpen(!helpBotOpen)}
-            className="flex items-center gap-3 px-6 py-4 bg-primary hover:bg-primary/90 text-on-primary rounded-full shadow-lg transition-all hover:scale-105"
-            aria-label="Open SecureShift AI Bot"
-          >
-            <Bot className="w-5 h-5" />
-            <span className="font-medium">Need Help?</span>
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

@@ -3,13 +3,13 @@ Vulnerability management endpoints
 """
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional
-from app.core.db import SupabaseDB
+from app.core.db import SupabaseDB, get_database
 from app.models.vulnerability import Vulnerability, VulnerabilityWithFix, AIFix
 
 router = APIRouter()
 
 @router.get("/{vulnerability_id}", response_model=VulnerabilityWithFix)
-async def get_vulnerability_with_fix(vulnerability_id: str, db: SupabaseDB = Depends()):
+async def get_vulnerability_with_fix(vulnerability_id: str, db: SupabaseDB = Depends(get_database)):
     """
     Get vulnerability details with associated AI fix
     """
@@ -40,7 +40,7 @@ async def get_vulnerability_with_fix(vulnerability_id: str, db: SupabaseDB = Dep
         raise HTTPException(status_code=500, detail=f"Error fetching vulnerability: {str(e)}")
 
 @router.get("/scan/{scan_id}", response_model=List[VulnerabilityWithFix])
-async def get_vulnerabilities_by_scan(scan_id: str, db: SupabaseDB = Depends()):
+async def get_vulnerabilities_by_scan(scan_id: str, db: SupabaseDB = Depends(get_database)):
     """
     Get all vulnerabilities for a scan with their AI fixes
     """
@@ -74,7 +74,7 @@ async def get_vulnerabilities_by_scan(scan_id: str, db: SupabaseDB = Depends()):
         raise HTTPException(status_code=500, detail=f"Error fetching vulnerabilities: {str(e)}")
 
 @router.get("/{vulnerability_id}/fixes", response_model=List[AIFix])
-async def get_ai_fixes(vulnerability_id: str, db: SupabaseDB = Depends()):
+async def get_ai_fixes(vulnerability_id: str, db: SupabaseDB = Depends(get_database)):
     """
     Get all AI-generated fixes for a vulnerability
     """
@@ -90,7 +90,7 @@ async def get_ai_fixes(vulnerability_id: str, db: SupabaseDB = Depends()):
         raise HTTPException(status_code=500, detail=f"Error fetching AI fixes: {str(e)}")
 
 @router.post("/{vulnerability_id}/apply-fix")
-async def apply_fix(vulnerability_id: str, fix_id: str, db: SupabaseDB = Depends()):
+async def apply_fix(vulnerability_id: str, fix_id: str, db: SupabaseDB = Depends(get_database)):
     """
     Mark an AI fix as applied and store the fixed code
     """

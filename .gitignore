@@ -1,36 +1,21 @@
 # Dependencies
 node_modules/
-frontend/node_modules/
-backend/__pycache__/
-mcp_agents/__pycache__/
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
-pip-log.txt
-pip-delete-this-directory.txt
+venv/
+.venv/
+env/
+ENV/
 
 # Environment variables
 .env
 .env.local
 .env.*.local
-*.env
-
-# Next.js
-.next/
-frontend/.next/
-out/
-build/
-dist/
-
-# Production
-/build
-/dist
-
-# Testing
-coverage/
-.nyc_output/
-*.log
+backend/.env
+frontend/.env.local
 
 # IDE
 .vscode/
@@ -40,43 +25,52 @@ coverage/
 *~
 .DS_Store
 
-# Python
-*.py[cod]
-*$py.class
-__pycache__/
-*.so
-.Python
-env/
-venv/
-ENV/
-.venv
+# Build outputs
+frontend/.next/
+frontend/out/
+frontend/build/
+backend/dist/
+backend/build/
+*.egg-info/
 
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
-# Docker
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Reports
-reports/
-*.json
-*.html
-*.pdf
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
 
 # Temporary files
 *.tmp
 *.temp
 .cache/
 
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Supabase
+infra/supabase/.branches/
+infra/supabase/.temp/
+
+# Security scan outputs
+/tmp/
+*.json.tmp
+bandit-report.json
+
 # OS
 Thumbs.db
 .DS_Store
 
-# Backup files
-*.bak
-*.backup
-*~
+# Kiro
+.kiro/
 
-# Old structure (to be removed)
-changes of frontend/
+# Misc
+*.bak
+*.orig

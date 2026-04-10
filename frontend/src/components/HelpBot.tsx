@@ -57,6 +57,8 @@ export default function HelpBot({ open, onClose }: HelpBotProps) {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      console.log('Calling chatbot API:', `${apiUrl}/api/chatbot/chat`);
+      
       const response = await fetch(`${apiUrl}/api/chatbot/chat`, {
         method: 'POST',
         headers: {
@@ -65,24 +67,35 @@ export default function HelpBot({ open, onClose }: HelpBotProps) {
         body: JSON.stringify({ message: question }),
       });
 
+      console.log('API Response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
         console.error('API Error:', errorData);
-        throw new Error(errorData.detail || 'Failed to get AI response');
+        throw new Error(errorData.detail || `API returned ${response.status}`);
       }
 
       const data = await response.json();
-      setAiResponse(data.response);
-      setCustomQuestion('');
+      console.log('AI Response:', data);
+      
+      if (data.response) {
+        setAiResponse(data.response);
+        setCustomQuestion('');
+      } else {
+        throw new Error('No response from AI');
+      }
     } catch (error) {
       console.error('Error getting AI response:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      if (errorMessage.includes('rate-limited') || errorMessage.includes('429')) {
+      
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+        setAiResponse(`Cannot connect to AI service. Please check:\n1. Backend is running on ${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}\n2. CORS is configured correctly\n3. Try a quick prompt above instead.`);
+      } else if (errorMessage.includes('rate-limited') || errorMessage.includes('429')) {
         setAiResponse('The AI service is temporarily busy. Please try again in a moment or select a quick prompt above.');
       } else if (errorMessage.includes('timeout')) {
         setAiResponse('The AI is taking too long to respond. Please try again or select a quick prompt above.');
       } else {
-        setAiResponse('Sorry, I encountered an error. Please try again or select a quick prompt above.');
+        setAiResponse(`Error: ${errorMessage}\n\nPlease try again or select a quick prompt above.`);
       }
     } finally {
       setIsLoading(false);
@@ -131,9 +144,9 @@ export default function HelpBot({ open, onClose }: HelpBotProps) {
                     <MessageSquare className="h-4 w-4" />
                   )}
                 </span>
-                <div>
+                <div className="flex-1">
                   <p className="text-sm font-medium text-on-background">{selectedPrompt}</p>
-                  <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+                  <p className="mt-2 text-sm leading-6 text-on-surface-variant whitespace-pre-line">
                     {isLoading ? 'Thinking...' : response}
                   </p>
                 </div>

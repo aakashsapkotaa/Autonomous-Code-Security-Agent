@@ -33,6 +33,31 @@ export async function addRepository(
   userId: string | null
 ): Promise<DatabaseResponse<Repository>> {
   try {
+    // If userId is provided, ensure user exists in users table
+    if (userId) {
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', userId)
+        .single();
+
+      // If user doesn't exist, create them
+      if (!existingUser) {
+        const { data: authUser } = await supabase.auth.getUser();
+        if (authUser?.user) {
+          await supabase
+            .from('users')
+            .insert([
+              {
+                id: userId,
+                email: authUser.user.email || '',
+                name: authUser.user.user_metadata?.full_name || authUser.user.email?.split('@')[0] || 'User',
+              },
+            ]);
+        }
+      }
+    }
+
     const { data, error } = await supabase
       .from('repositories')
       .insert([
@@ -64,6 +89,19 @@ export async function addRepository(
  */
 export async function createScan(repoId: string): Promise<DatabaseResponse<Scan>> {
   try {
+    // First, get the repository details
+    const { data: repo, error: repoError } = await supabase
+      .from('repositories')
+      .select('*')
+      .eq('id', repoId)
+      .single();
+
+    if (repoError || !repo) {
+      console.error('Error fetching repository:', repoError);
+      return { data: null, error: 'Repository not found' };
+    }
+
+    // Create scan record
     const { data, error } = await supabase
       .from('scans')
       .insert([
@@ -79,6 +117,44 @@ export async function createScan(repoId: string): Promise<DatabaseResponse<Scan>
     if (error) {
       console.error('Error creating scan:', error);
       return { data: null, error: error.message };
+    }
+
+    // Trigger the actual scan by calling the backend API
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      console.log('Triggering scan via backend API:', `${apiUrl}/api/scans/trigger`);
+      
+      const scanResponse = await fetch(`${apiUrl}/api/scans/trigger`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          scan_id: data.id,
+          repo_url: repo.repo_url,
+          repo_id: repoId,
+        }),
+      });
+
+      if (!scanResponse.ok) {
+        console.error('Failed to trigger scan:', await scanResponse.text());
+        // Update scan status to failed
+        await supabase
+          .from('scans')
+          .update({ status: 'failed' })
+          .eq('id', data.id);
+        return { data: null, error: 'Failed to trigger scan execution' };
+      }
+
+      console.log('Scan triggered successfully');
+    } catch (triggerError) {
+      console.error('Error triggering scan:', triggerError);
+      // Update scan status to failed
+      await supabase
+        .from('scans')
+        .update({ status: 'failed' })
+        .eq('id', data.id);
+      return { data: null, error: 'Failed to trigger scan execution' };
     }
 
     return { data, error: null };

@@ -55,6 +55,7 @@ export default function LoginForm() {
           email: formData.email,
           password: formData.password,
           options: {
+            emailRedirectTo: `${window.location.origin}/dashboard`,
             data: {
               full_name: formData.name,
             },
@@ -96,68 +97,51 @@ export default function LoginForm() {
     }
   };
 
-  const handleGitHubLogin = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        },
-      });
-
-      if (error) throw error;
-    } catch (error: any) {
-      setMessage({ 
-        type: 'error', 
-        text: error.message || 'GitHub login failed. Please try again.' 
-      });
-      setLoading(false);
-    }
-  };
-
   return (
     <motion.div variants={itemVariants} className="relative">
-      <GlassFrame className="relative z-10 rounded-xl p-10 neon-glow">
-        <div className="mb-10">
-          <h2 className="text-2xl font-headline font-bold text-on-background">
-            {isSignup ? 'Create Account' : 'Access Console'}
+      <GlassFrame className="relative z-10 rounded-2xl p-6 sm:p-8 lg:p-10 border-neon neon-glow">
+        <div className="mb-8 sm:mb-10">
+          <h2 className="text-2xl sm:text-3xl font-headline font-bold bg-gradient-to-r from-neon-cyan to-neon-blue bg-clip-text text-transparent">
+            {isSignup ? '🔐 Create Account' : '🚀 Access Console'}
           </h2>
-          <p className="mt-1 text-sm text-on-surface-variant">
+          <p className="mt-2 text-xs sm:text-sm text-on-surface-variant">
             {isSignup 
-              ? 'Register new operator credentials' 
-              : 'Provide credentials to initiate session'}
+              ? 'Register with your credentials to start securing' 
+              : 'Enter your credentials to access your security dashboard'}
           </p>
         </div>
 
         {message && (
-          <div className={`mb-6 p-4 rounded-lg flex items-start gap-3 ${
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`mb-6 p-4 rounded-lg flex items-start gap-3 border backdrop-blur-sm ${
             message.type === 'error' 
-              ? 'bg-red-500/10 border border-red-500/20' 
-              : 'bg-green-500/10 border border-green-500/20'
+              ? 'bg-neon-pink/10 border-neon-pink/50' 
+              : 'bg-neon-cyan/10 border-neon-cyan/50'
           }`}>
             {message.type === 'error' ? (
-              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-neon-pink flex-shrink-0 mt-0.5" />
             ) : (
-              <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+              <CheckCircle className="w-5 h-5 text-neon-cyan flex-shrink-0 mt-0.5" />
             )}
-            <p className={`text-sm ${
-              message.type === 'error' ? 'text-red-200' : 'text-green-200'
+            <p className={`text-sm font-medium ${
+              message.type === 'error' ? 'text-neon-pink/90' : 'text-neon-cyan/90'
             }`}>
               {message.text}
             </p>
-          </div>
+          </motion.div>
         )}
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
           {isSignup && (
             <div>
-              <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant" htmlFor="name">
+              <label className="text-xs font-bold uppercase tracking-widest text-neon-cyan/80" htmlFor="name">
                 Full Name
               </label>
-              <div className="relative group mt-1.5">
+              <div className="relative group mt-2">
                 <input
-                  className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 px-4 text-on-background placeholder:text-outline/70 focus:ring-2 focus:ring-primary/35 focus:border-white/30 transition-all outline-none"
+                  className="w-full bg-card-bg border border-neon-cyan/30 hover:border-neon-cyan/60 rounded-lg py-3 px-4 text-on-background placeholder:text-outline/50 focus:border-neon-cyan focus:ring-2 focus:ring-neon-cyan/20 transition-all outline-none"
                   id="name"
                   placeholder="John Operator"
                   type="text"
@@ -170,12 +154,12 @@ export default function LoginForm() {
           )}
 
           <div>
-            <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant" htmlFor="email">
+            <label className="text-xs font-bold uppercase tracking-widest text-neon-cyan/80" htmlFor="email">
               Email Address
             </label>
-            <div className="relative group mt-1.5">
+            <div className="relative group mt-2">
               <input
-                className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 px-4 text-on-background placeholder:text-outline/70 focus:ring-2 focus:ring-primary/35 focus:border-white/30 transition-all outline-none"
+                className="w-full bg-card-bg border border-neon-cyan/30 hover:border-neon-cyan/60 rounded-lg py-3 px-4 text-on-background placeholder:text-outline/50 focus:border-neon-cyan focus:ring-2 focus:ring-neon-cyan/20 transition-all outline-none"
                 id="email"
                 placeholder="operator@secureshift.io"
                 type="email"
@@ -188,20 +172,20 @@ export default function LoginForm() {
 
           <div>
             <div className="flex justify-between items-center">
-              <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant" htmlFor="password">
-                Security Token
+              <label className="text-xs font-bold uppercase tracking-widest text-neon-cyan/80" htmlFor="password">
+                Password
               </label>
               {!isSignup && (
-                <a className="text-xs text-primary/70 hover:text-primary transition-colors" href="#">
-                  Recovery required?
+                <a className="text-xs text-neon-cyan/60 hover:text-neon-cyan transition-colors" href="#">
+                  Forgot password?
                 </a>
               )}
             </div>
-            <div className="relative group mt-1.5">
+            <div className="relative group mt-2">
               <input
-                className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 px-4 text-on-background placeholder:text-outline/70 focus:ring-2 focus:ring-primary/35 focus:border-white/30 transition-all outline-none"
+                className="w-full bg-card-bg border border-neon-cyan/30 hover:border-neon-cyan/60 rounded-lg py-3 px-4 text-on-background placeholder:text-outline/50 focus:border-neon-cyan focus:ring-2 focus:ring-neon-cyan/20 transition-all outline-none"
                 id="password"
-                placeholder="************"
+                placeholder="••••••••"
                 type="password"
                 value={formData.password}
                 onChange={handleChange}
@@ -213,14 +197,14 @@ export default function LoginForm() {
 
           {isSignup && (
             <div>
-              <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant" htmlFor="confirmPassword">
-                Confirm Security Token
+              <label className="text-xs font-bold uppercase tracking-widest text-neon-cyan/80" htmlFor="confirmPassword">
+                Confirm Password
               </label>
-              <div className="relative group mt-1.5">
+              <div className="relative group mt-2">
                 <input
-                  className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 px-4 text-on-background placeholder:text-outline/70 focus:ring-2 focus:ring-primary/35 focus:border-white/30 transition-all outline-none"
+                  className="w-full bg-card-bg border border-neon-cyan/30 hover:border-neon-cyan/60 rounded-lg py-3 px-4 text-on-background placeholder:text-outline/50 focus:border-neon-cyan focus:ring-2 focus:ring-neon-cyan/20 transition-all outline-none"
                   id="confirmPassword"
-                  placeholder="************"
+                  placeholder="••••••••"
                   type="password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -231,12 +215,23 @@ export default function LoginForm() {
             </div>
           )}
 
-          <Button type="submit" variant="primary" fullWidth disabled={loading}>
-            {loading ? 'Processing...' : (isSignup ? 'Initialize Account' : 'Establish Connection')}
-          </Button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-neon-cyan to-neon-blue hover:from-neon-cyan/90 hover:to-neon-blue/90 text-dark-bg font-bold py-2.5 sm:py-3 text-sm sm:text-base rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading ? 'Processing...' : (
+              <>
+                {isSignup ? 'Create Account' : 'Sign In'}
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </motion.button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 sm:mt-8 text-center">
           <button
             type="button"
             onClick={() => {
@@ -244,7 +239,7 @@ export default function LoginForm() {
               setMessage(null);
               setFormData({ name: '', email: '', password: '', confirmPassword: '' });
             }}
-            className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
+            className="text-xs sm:text-sm text-on-surface-variant hover:text-neon-cyan transition-colors"
             disabled={loading}
           >
             {isSignup ? (
@@ -259,24 +254,6 @@ export default function LoginForm() {
               </>
             )}
           </button>
-        </div>
-
-        <div className="relative mt-8">
-          <div aria-hidden="true" className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-outline-variant/20" />
-          </div>
-          <div className="relative flex justify-center text-xs font-semibold uppercase tracking-widest">
-            <span className="bg-surface-container px-4 text-on-surface-variant">
-              External Protocol
-            </span>
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <Button variant="secondary" fullWidth>
-            Connect to GitHub
-            <ArrowRight className="h-4 w-4 text-primary opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
-          </Button>
         </div>
       </GlassFrame>
 

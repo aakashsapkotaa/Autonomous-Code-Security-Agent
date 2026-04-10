@@ -22,6 +22,8 @@ class SecurityScanner:
         """Clone a GitHub repository"""
         try:
             self.temp_dir = tempfile.mkdtemp()
+            logger.info(f"Cloning {repo_url} to {self.temp_dir}")
+            
             cmd = ["git", "clone", "--depth", "1", "--branch", branch, repo_url, self.temp_dir]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
             
@@ -30,7 +32,20 @@ class SecurityScanner:
                 return self.temp_dir
             else:
                 logger.error(f"Failed to clone repository: {result.stderr}")
-                return None
+                # Try without branch specification
+                logger.info("Retrying without branch specification...")
+                shutil.rmtree(self.temp_dir, ignore_errors=True)
+                self.temp_dir = tempfile.mkdtemp()
+                
+                cmd = ["git", "clone", "--depth", "1", repo_url, self.temp_dir]
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+                
+                if result.returncode == 0:
+                    logger.info(f"Successfully cloned {repo_url} (default branch)")
+                    return self.temp_dir
+                else:
+                    logger.error(f"Failed to clone repository: {result.stderr}")
+                    return None
         except Exception as e:
             logger.error(f"Error cloning repository: {e}")
             return None
@@ -74,6 +89,14 @@ class SecurityScanner:
     async def run_trufflehog(self, repo_path: str) -> List[Dict]:
         """Run TruffleHog secret scanner"""
         try:
+            # Check if trufflehog is available
+            check_cmd = ["trufflehog", "--version"]
+            check_result = subprocess.run(check_cmd, capture_output=True, timeout=5)
+            
+            if check_result.returncode != 0:
+                logger.warning("TruffleHog not installed, skipping secret scanning")
+                return []
+            
             cmd = [
                 "trufflehog",
                 "filesystem",
@@ -84,6 +107,9 @@ class SecurityScanner:
             
             if result.returncode == 0:
                 return self._parse_trufflehog_results(result.stdout)
+            return []
+        except FileNotFoundError:
+            logger.warning("TruffleHog not found in PATH, skipping secret scanning")
             return []
         except Exception as e:
             logger.error(f"Error running TruffleHog: {e}")
@@ -158,27 +184,54 @@ class SecurityScanner:
             # Clone repository
             repo_path = await self.clone_repository(repo_url, branch)
             if not repo_path:
+                logger.error("Failed to clone repository")
                 return []
+            
+            logger.info(f"Repository cloned to: {repo_path}")
             
             # Run all scanners
             logger.info("Running Bandit...")
-            bandit_results = await self.run_bandit(repo_path)
-            all_vulnerabilities.extend(bandit_results)
+            try:
+                bandit_results = await self.run_bandit(repo_path)
+                all_vulnerabilities.extend(bandit_results)
+                logger.info(f"Bandit found {len(bandit_results)} issues")
+            except Exception as e:
+                logger.error(f"Bandit scan failed: {e}")
             
             logger.info("Running TruffleHog...")
-            trufflehog_results = await self.run_trufflehog(repo_path)
-            all_vulnerabilities.extend(trufflehog_results)
+            try:
+                trufflehog_results = await self.run_trufflehog(repo_path)
+                all_vulnerabilities.extend(trufflehog_results)
+                logger.info(f"TruffleHog found {len(trufflehog_results)} secrets")
+            except Exception as e:
+                logger.error(f"TruffleHog scan failed: {e}")
             
             logger.info("Running Safety...")
-            safety_results = await self.run_safety(repo_path)
-            all_vulnerabilities.extend(safety_results)
+            try:
+                safety_results = await self.run_safety(repo_path)
+                all_vulnerabilities.extend(safety_results)
+                logger.info(f"Safety found {len(safety_results)} vulnerable dependencies")
+            except Exception as e:
+                logger.error(f"Safety scan failed: {e}")
             
             logger.info(f"Total vulnerabilities found: {len(all_vulnerabilities)}")
             
+        except Exception as e:
+            logger.error(f"Error during scan: {e}", exc_info=True)
         finally:
-            # Cleanup
+            # Cleanup - use more aggressive cleanup for Windows
             if self.temp_dir and os.path.exists(self.temp_dir):
-                shutil.rmtree(self.temp_dir)
+                try:
+                    # On Windows, we need to handle read-only files
+                    def handle_remove_readonly(func, path, exc):
+                        import stat
+                        os.chmod(path, stat.S_IWRITE)
+                        func(path)
+                    
+                    shutil.rmtree(self.temp_dir, onerror=handle_remove_readonly)
+                    logger.info(f"Cleaned up temp directory: {self.temp_dir}")
+                except Exception as e:
+                    logger.warning(f"Failed to cleanup temp directory: {e}")
         
         return all_vulnerabilities
 

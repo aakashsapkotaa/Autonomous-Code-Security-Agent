@@ -55,7 +55,7 @@ class ScanService:
                 "repo_name": repo_name
             }
             
-            repo = await db.create_repository(repo_data)
+            repo = db.create_repository(repo_data)
             if not repo:
                 return ScanResponse(
                     scan_id="",
@@ -70,7 +70,7 @@ class ScanService:
                 "scan_started_at": datetime.utcnow().isoformat()
             }
             
-            scan = await db.create_scan(scan_data)
+            scan = db.create_scan(scan_data)
             if not scan:
                 return ScanResponse(
                     scan_id="",
@@ -79,7 +79,7 @@ class ScanService:
                 )
             
             # Log scan creation
-            await db.create_scan_log(
+            db.create_scan_log(
                 scan["id"],
                 f"Scan created for repository: {repo_name}",
                 "info"
@@ -106,11 +106,11 @@ class ScanService:
     
     async def get_scan_details(self, scan_id: str) -> Optional[Dict]:
         """Get scan details with vulnerabilities"""
-        scan = await db.get_scan(scan_id)
+        scan = db.get_scan(scan_id)
         if not scan:
             return None
         
-        vulnerabilities = await db.get_vulnerabilities(scan_id)
+        vulnerabilities = db.get_vulnerabilities(scan_id)
         
         return {
             **scan,
@@ -132,6 +132,6 @@ class ScanService:
         if status == ScanStatus.COMPLETED:
             data["scan_completed_at"] = datetime.utcnow().isoformat()
         
-        return await db.update_scan(scan_id, data)
+        return db.update_scan(scan_id, data)
 
 scan_service = ScanService()

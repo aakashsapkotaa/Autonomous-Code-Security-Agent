@@ -49,9 +49,9 @@ async def startup_event():
     """Initialize services on startup"""
     print("🚀 SecureShift API starting up...")
     print(f"📊 Supabase URL: {settings.SUPABASE_URL}")
-    print(f"🔧 MCP Orchestrator: {settings.MCP_ORCHESTRATOR_URL}")
-    print(f"🤖 MCP Fixer: {settings.MCP_FIXER_URL}")
-    print(f"📝 MCP Reporter: {settings.MCP_REPORTER_URL}")
+    print(f"🤖 OpenRouter Model: {settings.OPENROUTER_MODEL}")
+    print(f"✅ Security Scanner: Ready")
+    print(f"✅ AI Fix Generator: Ready")
 
 @app.on_event("shutdown")
 async def shutdown_event():

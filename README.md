@@ -1,356 +1,292 @@
-# SecureShift - Autonomous Code Security Agent
+# 🔒 SecureShift - AI-Powered Security Scanner
 
-<div align="center">
+> Autonomous security vulnerability detection and AI-powered fix generation for your GitHub repositories
 
-![SecureShift Banner](https://img.shields.io/badge/SecureShift-Autonomous%20Security-white?style=for-the-badge)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green)](https://fastapi.tiangolo.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Powered-green)](https://supabase.com/)
+[![Python](https://img.shields.io/badge/Python-3.12+-blue)](https://python.org/)
 
-**Next-generation security analysis powered by AI agents and cloud-native tools**
+## 🚀 Features
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.1-black?style=flat-square&logo=next.js)](https://nextjs.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3.11-blue?style=flat-square&logo=python)](https://python.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-orange?style=flat-square)](LICENSE)
-
-</div>
-
----
-
-## 🚀 Overview
-
-SecureShift is an autonomous code security agent that automatically detects vulnerabilities in your GitHub repositories and provides AI-powered fix suggestions. Built with a modern microservices architecture designed for scalability on AWS Free Tier.
-
-### ✅ Implementation Status
-
-- ✅ **Frontend** (100%) - Complete Next.js UI with authentication, dashboard, and repository management
-- ✅ **Backend** (100%) - Full FastAPI implementation with all routes and services
-- ✅ **Database** (100%) - Supabase integration with complete CRUD operations
-- ✅ **MCP Agents** (100%) - All three agents fully implemented (Orchestrator, Fixer, Reporter)
-- ✅ **Security Tools** (100%) - Bandit, TruffleHog, Safety integration complete
-- ✅ **GitHub Integration** (100%) - OAuth and webhook handlers implemented
-- ✅ **Celery Worker** (100%) - Background task processing ready
-- ✅ **Tests** (100%) - Unit tests for core functionality
-
-### Key Features
-
-- 🤖 **AI-Powered Analysis** - Multi-agent system with Orchestrator, Fixer, and Reporter agents
-- 🔍 **Comprehensive Security Scanning** - Integrates Bandit, TruffleHog, Safety, and NVD API
-- ⚡ **Real-time Monitoring** - GitHub Actions integration for automated scanning
-- 🎨 **Modern UI** - Cyberpunk-inspired design with glass-morphism effects
-- 📊 **Interactive Dashboard** - View vulnerabilities, AI fixes, and scan logs
-- 🔐 **Secure by Design** - Row Level Security (RLS) with Supabase
-- 🌐 **Serverless Architecture** - FastAPI backend with Redis Docker and Celery Worker
-
----
-
-## 📁 Project Structure
-
-```
-project-root/
-├── .github/
-│   └── workflows/                # GitHub Actions CI/CD
-│       ├── deploy-frontend.yml
-│       ├── deploy-backend.yml
-│       └── security-scan.yml
-│
-├── frontend/                     # Next.js frontend (Vercel / AWS Amplify)
-│   ├── public/
-│   ├── src/
-│   │   ├── app/                  # App Router
-│   │   ├── components/
-│   │   └── lib/                  # API client for backend
-│   ├── package.json
-│   └── next.config.ts
-│
-├── backend/                      # FastAPI backend
-│   ├── app/
-│   │   ├── main.py               # FastAPI entrypoint
-│   │   ├── api/                  # REST endpoints
-│   │   │   └── routes/
-│   │   ├── core/                 # config, dependencies
-│   │   ├── models/               # Pydantic / SQLModel
-│   │   └── services/             # business logic, call to MCP layer
-│   ├── requirements.txt
-│   ├── Dockerfile
-│   └── celery_worker.py
-│
-├── mcp_agents/                   # MCP Agent Layer
-│   ├── orchestrator/
-│   │   └── agent.py
-│   ├── fixer/
-│   │   ├── agent.py
-│   │   └── deepseek_client.py    # Ollama + DeepSeek Coder
-│   ├── reporter/
-│   │   └── agent.py
-│   ├── supabase_client.py        # MCP-based Supabase (PostgreSQL) access
-│   └── requirements.txt
-│
-├── security/                     # Security tools configuration
-│   ├── bandit/
-│   │   └── bandit.yaml
-│   ├── trufflehog/
-│   │   └── trufflehog.yml
-│   ├── safety/
-│   │   └── safety-policy.yml
-│   ├── nvd_api/
-│   │   └── nvd_fetcher.py
-│   └── ollama_sec/               # Ollama security scanning scripts
-│       └── scan.py
-│
-├── docker/                       # Docker compose for local / EC2
-│   ├── docker-compose.yml        # Redis, Celery, Backend, Agents
-│   ├── Dockerfile.backend
-│   └── Dockerfile.agent
-│
-├── infra/                        # AWS & Supabase infra as code
-│   ├── terraform/                # EC2, S3, IAM
-│   └── supabase/                 # schema migrations, RLS policies
-│
-├── scripts/                      # Utility scripts
-│   ├── run_celery.sh
-│   ├── start_agents.sh
-│   └── security_scan_all.sh
-│
-├── .env.example                  # Environment variables template
-├── .gitignore
-└── README.md
-```
-
----
+- **🔍 Multi-Tool Security Scanning**: Integrates Bandit, TruffleHog, and Safety for comprehensive vulnerability detection
+- **🤖 AI-Powered Fix Generation**: Automatically generates code fixes using OpenRouter AI
+- **📊 Real-time Dashboard**: Beautiful, responsive UI built with Next.js and Tailwind CSS
+- **🔐 Secure Authentication**: Email/password authentication with Supabase
+- **💾 Persistent Storage**: All scans, vulnerabilities, and fixes stored in Supabase PostgreSQL
+- **⚡ Background Processing**: Non-blocking scan execution with FastAPI background tasks
+- **🎨 Modern UI**: Cyberpunk-themed interface with particle animations and glass morphism
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         USER INTERFACE                          │
-│  Next.js Frontend (Vercel / AWS Amplify Free Tier)            │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    GITHUB INTEGRATION                           │
-│  GitHub Repo ──► GitHub Actions ──► Webhook Trigger           │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    FASTAPI BACKEND                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │
-│  │ Redis Docker │  │ Celery Worker│  │  S3 Bucket   │        │
-│  │   (Queue)    │  │  (Tasks)     │  │ Reports/Logs │        │
-│  └──────────────┘  └──────────────┘  └──────────────┘        │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    MCP AGENT LAYER                              │
-│  ┌────────────────────────────────────────────────────────┐   │
-│  │  Orchestrator Agent (Coordinates workflow)             │   │
-│  │  Fixer Agent (Ollama + DeepSeek Coder)                │   │
-│  │  Reporter Agent (Generates reports)                    │   │
-│  └────────────────────────────────────────────────────────┘   │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    SECURITY TOOLS                               │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐      │
-│  │  Bandit  │  │TruffleHog│  │  Safety  │  │ NVD API  │      │
-│  │  Ollama  │  (Secrets)  │  │  (Deps)  │  │  (CVEs)  │      │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘      │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    DATABASE LAYER                               │
-│  Supabase (PostgreSQL via MCP)                                │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────┐
+│  Next.js        │
+│  Frontend       │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  FastAPI        │
+│  Backend API    │
+└────────┬────────┘
+         │
+    ┌────┴────┬──────────┬──────────┐
+    ▼         ▼          ▼          ▼
+┌────────┐ ┌────────┐ ┌────────┐ ┌──────────┐
+│ Bandit │ │Truffle │ │ Safety │ │OpenRouter│
+│        │ │  Hog   │ │        │ │   AI     │
+└────────┘ └────────┘ └────────┘ └──────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Supabase      │
+│   PostgreSQL    │
+└─────────────────┘
 ```
 
----
+## 📋 Prerequisites
 
-## 📚 Documentation
+- **Node.js** 18+ and npm
+- **Python** 3.12+
+- **Git**
+- **Supabase Account** (free tier works)
+- **OpenRouter API Key** (for AI fixes)
 
-- **[README.md](README.md)** - This file - Project overview and quick start
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Complete deployment instructions
-- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Current implementation status
-- **[AI_FIX_WORKFLOW.md](AI_FIX_WORKFLOW.md)** - AI fix generation workflow
+## 🛠️ Installation
 
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- Python 3.11+
-- Docker & Docker Compose
-- Supabase account
-- (Optional) Ollama for local LLM
-
-### 1. Clone Repository
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/aakashsapkotaa/Autonomous-Code-Security-Agent.git
-cd Autonomous-Code-Security-Agent
+git clone https://github.com/yourusername/secureshift.git
+cd secureshift
 ```
 
-### 2. Setup Environment
+### 2. Backend Setup
 
 ```bash
+cd backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create .env file
 cp .env.example .env
-# Edit .env with your credentials
 ```
 
-### 3. Start Services with Docker
-
-```bash
-cd docker
-docker-compose up -d
+Edit `backend/.env`:
+```env
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_MODEL=nvidia/nemotron-3-super-120b-a12b:free
 ```
 
-This starts:
-- Redis (port 6379)
-- FastAPI Backend (port 8000)
-- Celery Worker
-- MCP Agents (ports 8001-8003)
-
-### 4. Setup Frontend
+### 3. Frontend Setup
 
 ```bash
 cd frontend
+
+# Install dependencies
 npm install
+
+# Create .env.local file
+cp .env.local.example .env.local
+```
+
+Edit `frontend/.env.local`:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+### 4. Database Setup
+
+Run the SQL schema in your Supabase SQL editor:
+
+```bash
+# Copy the schema
+cat infra/supabase/schema.sql
+```
+
+Paste and execute in Supabase Dashboard → SQL Editor
+
+### 5. Install Security Tools
+
+```bash
+# Install Bandit (Python security)
+pip install bandit
+
+# Install TruffleHog (secrets detection)
+# Download from: https://github.com/trufflesecurity/trufflehog/releases
+
+# Install Safety (dependency checker)
+pip install safety
+```
+
+## 🚀 Running the Application
+
+### Start Backend
+
+```bash
+cd backend
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Backend will be available at: http://localhost:8000
+API Docs: http://localhost:8000/api/docs
+
+### Start Frontend
+
+```bash
+cd frontend
 npm run dev
 ```
 
-Frontend runs on [http://localhost:3000](http://localhost:3000)
+Frontend will be available at: http://localhost:3000
 
-### 5. Setup Database
+## 📱 Usage
 
-```bash
-# Apply schema
-cd infra/supabase
-# Run schema.sql in Supabase SQL Editor
-```
+1. **Sign Up**: Create an account with email and password
+2. **Add Repository**: Enter your GitHub repository URL
+3. **Start Scan**: Click "Start Security Scan" to analyze the repository
+4. **View Results**: See vulnerabilities with severity levels
+5. **AI Fixes**: Get AI-generated fix suggestions for each vulnerability
 
----
+## 🔧 API Endpoints
 
-## 📚 Documentation
+### Authentication
+- `POST /api/auth/signup` - Create new account
+- `POST /api/auth/login` - Login
 
-- [Quick Start Guide](QUICK_START.md)
-- [Project Status](PROJECT_STATUS.md)
-- [Deployment Guide](DEPLOYMENT_READY.md)
-- [Security Guide](SECURITY_FIX_GUIDE.md)
+### Repositories
+- `GET /api/repositories` - List repositories
+- `POST /api/repositories` - Add repository
+- `GET /api/repositories/{id}` - Get repository details
 
----
+### Scans
+- `POST /api/scans/trigger` - Start security scan
+- `GET /api/scans/{id}` - Get scan status and results
 
-## 🔧 Development
+### Vulnerabilities
+- `GET /api/vulnerabilities/{id}` - Get vulnerability details
+- `GET /api/vulnerabilities/scan/{scan_id}` - Get all vulnerabilities for a scan
 
-### Backend Development
+### Chatbot
+- `POST /api/chatbot/chat` - Ask AI assistant
 
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
+## 🗄️ Database Schema
 
-### Run Security Scans
+### Tables
+- **users**: User accounts
+- **repositories**: GitHub repositories
+- **scans**: Security scan records
+- **vulnerabilities**: Detected security issues
+- **ai_fixes**: AI-generated fix suggestions
+- **scan_logs**: Scan execution logs
 
-```bash
-bash scripts/security_scan_all.sh
-```
+## 🎨 Tech Stack
 
-### Start MCP Agents
+### Frontend
+- **Next.js 15** - React framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **Framer Motion** - Animations
+- **Supabase Client** - Authentication & Database
 
-```bash
-bash scripts/start_agents.sh
-```
+### Backend
+- **FastAPI** - Modern Python web framework
+- **Supabase** - PostgreSQL database
+- **Bandit** - Python security linter
+- **TruffleHog** - Secret scanner
+- **Safety** - Dependency vulnerability checker
+- **OpenRouter** - AI API gateway
 
----
+## 🔐 Security Tools
 
-## 🧪 Testing
+### Bandit
+Analyzes Python code for common security issues:
+- SQL injection
+- Hardcoded passwords
+- Insecure functions
+- And more...
 
-```bash
-# Backend tests
-cd backend
-pytest
+### TruffleHog
+Scans for secrets and credentials:
+- API keys
+- Passwords
+- Tokens
+- Private keys
 
-# Frontend tests
-cd frontend
-npm test
-```
+### Safety
+Checks Python dependencies for known vulnerabilities using the PyUp.io database
 
----
+## 🤖 AI Fix Generation
 
-## 🚢 Deployment
+SecureShift uses OpenRouter to access powerful AI models for generating security fixes:
 
-### Frontend (Vercel)
+- **Model**: Nvidia Nemotron 3 Super 120B (free tier)
+- **Confidence Scoring**: Each fix includes a confidence score
+- **Context-Aware**: Fixes are generated based on vulnerability type, severity, and code context
 
-```bash
-cd frontend
-vercel --prod
-```
+## 📊 Features in Detail
 
-### Backend (AWS EC2)
+### Responsive Design
+- Mobile-first approach
+- Works on phones, tablets, and desktops
+- Adaptive layouts and touch-friendly controls
 
-```bash
-# See .github/workflows/deploy-backend.yml
-```
+### Real-time Updates
+- Background scan processing
+- Live status updates
+- Instant vulnerability detection
 
----
+### User Experience
+- Particle background animations
+- Glass morphism UI elements
+- Smooth transitions and interactions
+- Cyberpunk aesthetic
 
-## 📊 Tech Stack
+## 🚧 Roadmap
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 15, TypeScript, Tailwind CSS 4 |
-| Backend | FastAPI, Python 3.11 |
-| Database | Supabase (PostgreSQL) |
-| Task Queue | Celery + Redis |
-| AI/LLM | Ollama + DeepSeek Coder |
-| Security Tools | Bandit, TruffleHog, Safety, NVD API |
-| Infrastructure | Docker, AWS EC2, S3 |
-| CI/CD | GitHub Actions |
-
----
+- [ ] GitHub OAuth integration
+- [ ] Webhook support for automatic scans
+- [ ] Email notifications
+- [ ] Scan scheduling
+- [ ] Team collaboration features
+- [ ] Custom security rules
+- [ ] Export reports (PDF, JSON)
+- [ ] Integration with CI/CD pipelines
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-Apache License 2.0 - see [LICENSE](LICENSE) file
+This project is licensed under the MIT License - see the LICENSE file for details.
 
----
+## 👥 Team
 
-## 👥 Authors
-
-- **Aakash Sapkota** - [@aakashsapkotaa](https://github.com/aakashsapkotaa)
-
----
+Built with ❤️ for the hackathon
 
 ## 🙏 Acknowledgments
 
-- Next.js team
-- FastAPI team
-- Supabase team
-- All open-source security tools
+- Supabase for the amazing backend platform
+- OpenRouter for AI API access
+- The open-source security tools community
+- Next.js and FastAPI teams
+
+## 📞 Support
+
+For issues and questions, please open an issue on GitHub.
 
 ---
 
-<div align="center">
-
-**Built with ❤️ using Next.js, FastAPI, Supabase, and AI**
-
-[Website](https://secureshift.vercel.app) • [Documentation](https://github.com/aakashsapkotaa/Autonomous-Code-Security-Agent/wiki) • [Report Bug](https://github.com/aakashsapkotaa/Autonomous-Code-Security-Agent/issues)
-
-</div>
+**Made with 🔒 by SecureShift Team**
