@@ -11,8 +11,11 @@ class Settings(BaseSettings):
     
     # CORS
     ALLOWED_ORIGINS: List[str] = [
+        "http://localhost:5173",
         "http://localhost:3000",
         "http://localhost:3001",
+        "http://10.178.48.31:3000",
+        "http://10.178.48.31:5173",
         "https://secureshift.vercel.app"
     ]
     
@@ -28,6 +31,10 @@ class Settings(BaseSettings):
     # GitHub OAuth
     GITHUB_TOKEN: str = ""
     GITHUB_WEBHOOK_SECRET: str = ""
+
+    # NVD API (optional — raises rate limit from 5 to 50 req/30s)
+    # Get a free key at https://nvd.nist.gov/developers/request-an-api-key
+    NVD_API_KEY: str = ""
     
     # MCP Agents (optional for local development)
     MCP_ORCHESTRATOR_URL: str = "http://localhost:5001"
@@ -37,5 +44,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"
 
 settings = Settings()

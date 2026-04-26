@@ -1,292 +1,182 @@
-# 🔒 SecureShift - AI-Powered Security Scanner
+<div align="center">
 
-> Autonomous security vulnerability detection and AI-powered fix generation for your GitHub repositories
+# 🔒 SecureShift
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green)](https://fastapi.tiangolo.com/)
-[![Supabase](https://img.shields.io/badge/Supabase-Powered-green)](https://supabase.com/)
-[![Python](https://img.shields.io/badge/Python-3.12+-blue)](https://python.org/)
+**AI-Powered Autonomous Code Security SaaS**
 
-## 🚀 Features
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
+[![SvelteKit](https://img.shields.io/badge/SvelteKit-2.0-FF3E00?style=flat-square&logo=svelte)](https://kit.svelte.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-2.9-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python)](https://python.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript)](https://typescriptlang.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
-- **🔍 Multi-Tool Security Scanning**: Integrates Bandit, TruffleHog, and Safety for comprehensive vulnerability detection
-- **🤖 AI-Powered Fix Generation**: Automatically generates code fixes using OpenRouter AI
-- **📊 Real-time Dashboard**: Beautiful, responsive UI built with Next.js and Tailwind CSS
-- **🔐 Secure Authentication**: Email/password authentication with Supabase
-- **💾 Persistent Storage**: All scans, vulnerabilities, and fixes stored in Supabase PostgreSQL
-- **⚡ Background Processing**: Non-blocking scan execution with FastAPI background tasks
-- **🎨 Modern UI**: Cyberpunk-themed interface with particle animations and glass morphism
+SecureShift automatically scans your GitHub repositories for security vulnerabilities, generates AI-powered fix suggestions, and creates pull requests — all in one click.
 
-## 🏗️ Architecture
+[Features](#features) · [Quick Start](#quick-start) · [Architecture](#architecture) · [API Docs](#api) · [Contributing](#contributing)
 
-```
-┌─────────────────┐
-│  Next.js        │
-│  Frontend       │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  FastAPI        │
-│  Backend API    │
-└────────┬────────┘
-         │
-    ┌────┴────┬──────────┬──────────┐
-    ▼         ▼          ▼          ▼
-┌────────┐ ┌────────┐ ┌────────┐ ┌──────────┐
-│ Bandit │ │Truffle │ │ Safety │ │OpenRouter│
-│        │ │  Hog   │ │        │ │   AI     │
-└────────┘ └────────┘ └────────┘ └──────────┘
-         │
-         ▼
-┌─────────────────┐
-│   Supabase      │
-│   PostgreSQL    │
-└─────────────────┘
-```
-
-## 📋 Prerequisites
-
-- **Node.js** 18+ and npm
-- **Python** 3.12+
-- **Git**
-- **Supabase Account** (free tier works)
-- **OpenRouter API Key** (for AI fixes)
-
-## 🛠️ Installation
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/secureshift.git
-cd secureshift
-```
-
-### 2. Backend Setup
-
-```bash
-cd backend
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Create .env file
-cp .env.example .env
-```
-
-Edit `backend/.env`:
-```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-OPENROUTER_API_KEY=your_openrouter_api_key
-OPENROUTER_MODEL=nvidia/nemotron-3-super-120b-a12b:free
-```
-
-### 3. Frontend Setup
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Create .env.local file
-cp .env.local.example .env.local
-```
-
-Edit `frontend/.env.local`:
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-### 4. Database Setup
-
-Run the SQL schema in your Supabase SQL editor:
-
-```bash
-# Copy the schema
-cat infra/supabase/schema.sql
-```
-
-Paste and execute in Supabase Dashboard → SQL Editor
-
-### 5. Install Security Tools
-
-```bash
-# Install Bandit (Python security)
-pip install bandit
-
-# Install TruffleHog (secrets detection)
-# Download from: https://github.com/trufflesecurity/trufflehog/releases
-
-# Install Safety (dependency checker)
-pip install safety
-```
-
-## 🚀 Running the Application
-
-### Start Backend
-
-```bash
-cd backend
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-Backend will be available at: http://localhost:8000
-API Docs: http://localhost:8000/api/docs
-
-### Start Frontend
-
-```bash
-cd frontend
-npm run dev
-```
-
-Frontend will be available at: http://localhost:3000
-
-## 📱 Usage
-
-1. **Sign Up**: Create an account with email and password
-2. **Add Repository**: Enter your GitHub repository URL
-3. **Start Scan**: Click "Start Security Scan" to analyze the repository
-4. **View Results**: See vulnerabilities with severity levels
-5. **AI Fixes**: Get AI-generated fix suggestions for each vulnerability
-
-## 🔧 API Endpoints
-
-### Authentication
-- `POST /api/auth/signup` - Create new account
-- `POST /api/auth/login` - Login
-
-### Repositories
-- `GET /api/repositories` - List repositories
-- `POST /api/repositories` - Add repository
-- `GET /api/repositories/{id}` - Get repository details
-
-### Scans
-- `POST /api/scans/trigger` - Start security scan
-- `GET /api/scans/{id}` - Get scan status and results
-
-### Vulnerabilities
-- `GET /api/vulnerabilities/{id}` - Get vulnerability details
-- `GET /api/vulnerabilities/scan/{scan_id}` - Get all vulnerabilities for a scan
-
-### Chatbot
-- `POST /api/chatbot/chat` - Ask AI assistant
-
-## 🗄️ Database Schema
-
-### Tables
-- **users**: User accounts
-- **repositories**: GitHub repositories
-- **scans**: Security scan records
-- **vulnerabilities**: Detected security issues
-- **ai_fixes**: AI-generated fix suggestions
-- **scan_logs**: Scan execution logs
-
-## 🎨 Tech Stack
-
-### Frontend
-- **Next.js 15** - React framework
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Framer Motion** - Animations
-- **Supabase Client** - Authentication & Database
-
-### Backend
-- **FastAPI** - Modern Python web framework
-- **Supabase** - PostgreSQL database
-- **Bandit** - Python security linter
-- **TruffleHog** - Secret scanner
-- **Safety** - Dependency vulnerability checker
-- **OpenRouter** - AI API gateway
-
-## 🔐 Security Tools
-
-### Bandit
-Analyzes Python code for common security issues:
-- SQL injection
-- Hardcoded passwords
-- Insecure functions
-- And more...
-
-### TruffleHog
-Scans for secrets and credentials:
-- API keys
-- Passwords
-- Tokens
-- Private keys
-
-### Safety
-Checks Python dependencies for known vulnerabilities using the PyUp.io database
-
-## 🤖 AI Fix Generation
-
-SecureShift uses OpenRouter to access powerful AI models for generating security fixes:
-
-- **Model**: Nvidia Nemotron 3 Super 120B (free tier)
-- **Confidence Scoring**: Each fix includes a confidence score
-- **Context-Aware**: Fixes are generated based on vulnerability type, severity, and code context
-
-## 📊 Features in Detail
-
-### Responsive Design
-- Mobile-first approach
-- Works on phones, tablets, and desktops
-- Adaptive layouts and touch-friendly controls
-
-### Real-time Updates
-- Background scan processing
-- Live status updates
-- Instant vulnerability detection
-
-### User Experience
-- Particle background animations
-- Glass morphism UI elements
-- Smooth transitions and interactions
-- Cyberpunk aesthetic
-
-## 🚧 Roadmap
-
-- [ ] GitHub OAuth integration
-- [ ] Webhook support for automatic scans
-- [ ] Email notifications
-- [ ] Scan scheduling
-- [ ] Team collaboration features
-- [ ] Custom security rules
-- [ ] Export reports (PDF, JSON)
-- [ ] Integration with CI/CD pipelines
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👥 Team
-
-Built with ❤️ for the hackathon
-
-## 🙏 Acknowledgments
-
-- Supabase for the amazing backend platform
-- OpenRouter for AI API access
-- The open-source security tools community
-- Next.js and FastAPI teams
-
-## 📞 Support
-
-For issues and questions, please open an issue on GitHub.
+</div>
 
 ---
 
-**Made with 🔒 by SecureShift Team**
+## ✨ Features
+
+- **🔍 Automated Security Scanning** — Runs Bandit, Safety, and CVE lookups on every repository
+- **🤖 AI Fix Generation** — Uses LLMs via OpenRouter to generate context-aware code fixes
+- **🔀 One-Click PR Creation** — Automatically applies fixes and opens a GitHub Draft PR
+- **📊 Admin Dashboard** — Full platform management with analytics, audit logs, and user management
+- **🔐 Role-Based Access Control** — User, Admin, Super Admin, and Enterprise Manager roles
+- **🌐 CVE Integration** — Real-time CVE lookup via NVD API
+- **⚡ Real-time Updates** — Live scan status via Supabase Realtime
+
+## 🏗️ Project Structure
+
+```
+secureshift/
+│
+├── frontend/                    # SvelteKit frontend
+│   ├── src/
+│   │   ├── lib/
+│   │   │   ├── components/      # Reusable UI components
+│   │   │   │   └── admin/       # Admin-specific components
+│   │   │   ├── api.ts           # API client helpers
+│   │   │   ├── adminApi.ts      # Admin API client
+│   │   │   └── supabaseClient.ts
+│   │   └── routes/
+│   │       ├── +page.svelte     # Landing page
+│   │       ├── admin/           # Admin dashboard
+│   │       ├── dashboard/       # User dashboard
+│   │       └── auth/            # Auth callbacks
+│   ├── package.json
+│   └── .env.example
+│
+├── backend/                     # FastAPI backend
+│   ├── app/
+│   │   ├── api/routes/          # API route handlers
+│   │   ├── core/                # Config, auth, DB, RBAC
+│   │   ├── models/              # Pydantic models
+│   │   ├── services/            # Business logic
+│   │   └── main.py
+│   ├── tests/
+│   ├── requirements.txt
+│   └── .env.example
+│
+├── infra/
+│   ├── supabase/migrations/     # Database migrations
+│   └── terraform/               # Infrastructure as code
+│
+├── mcp_agents/                  # MCP AI agents
+│   └── fixer/
+│
+├── docs/                        # Documentation
+│   ├── architecture.md
+│   ├── api.md
+│   ├── deployment.md
+│   └── admin-dashboard.md
+│
+├── .github/workflows/           # CI/CD pipelines
+├── README.md
+├── LICENSE
+└── .gitignore
+```
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ and npm
+- Python 3.11+
+- A [Supabase](https://supabase.com) project
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/your-username/secureshift.git
+cd secureshift
+```
+
+### 2. Backend setup
+```bash
+cd backend
+cp .env.example .env
+# Fill in your credentials in .env
+
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+uvicorn app.main:app --reload
+# Backend running at http://localhost:8000
+```
+
+### 3. Frontend setup
+```bash
+cd frontend
+cp .env.example .env
+# Fill in your Supabase credentials
+
+npm install
+npm run dev
+# Frontend running at http://localhost:5173
+```
+
+### 4. Access the app
+- **App**: http://localhost:5173
+- **API Docs**: http://localhost:8000/api/docs
+- **Admin**: http://localhost:5173/admin *(requires admin role)*
+
+## ⚙️ Configuration
+
+### Backend environment variables
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `SUPABASE_URL` | ✅ | Your Supabase project URL |
+| `SUPABASE_KEY` | ✅ | Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Supabase service role key |
+| `OPENROUTER_API_KEY` | ✅ | OpenRouter API key for AI fixes |
+| `GITHUB_TOKEN` | ⚠️ | GitHub token for PR creation |
+| `NVD_API_KEY` | ⚠️ | NVD API key for CVE lookup |
+
+### Frontend environment variables
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `PUBLIC_SUPABASE_URL` | ✅ | Supabase project URL |
+| `PUBLIC_SUPABASE_ANON_KEY` | ✅ | Supabase anon key |
+| `PUBLIC_API_URL` | ✅ | Backend API URL |
+
+## 📖 API
+
+Interactive API documentation is available at `/api/docs` when the backend is running.
+
+See [docs/api.md](docs/api.md) for the full API reference.
+
+## 🏛️ Architecture
+
+See [docs/architecture.md](docs/architecture.md) for the full architecture overview.
+
+## 🚢 Deployment
+
+See [docs/deployment.md](docs/deployment.md) for deployment instructions.
+
+## 🔐 Security
+
+- All API keys and secrets must be stored in `.env` files (never committed)
+- Admin endpoints are protected by RBAC middleware
+- All admin actions are logged in the audit trail
+- Supabase RLS policies protect data at the database level
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -m 'feat: add my feature'`
+4. Push to the branch: `git push origin feature/my-feature`
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+Built with ❤️ by the SecureShift team
+</div>

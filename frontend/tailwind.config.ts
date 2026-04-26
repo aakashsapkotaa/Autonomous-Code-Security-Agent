@@ -2,25 +2,32 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{html,js,svelte,ts}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        headline: ['Space Grotesk', 'sans-serif'],
+      },
       colors: {
         'neon-cyan': '#00d9ff',
         'neon-purple': '#9d4edd',
         'neon-pink': '#ff006e',
         'neon-blue': '#3a86ff',
-        'dark-bg': '#0a0e27',
-        'card-bg': '#151932',
+        'dark-bg': '#060914',
+        'card-bg': '#0d1120',
         'accent-1': '#7209b7',
         'accent-2': '#f72585',
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-hallway': 'linear-gradient(90deg, #0a0e27 0%, #1a0d35 50%, #0a0e27 100%)',
+        'on-background': '#f0f4ff',
+        'on-surface': '#e8ecff',
+        'on-surface-variant': '#b8bfd6',
+        'surface-container-high': '#1a1f3a',
+        'surface-bright': '#3a3f54',
+        'outline': '#6b76a1',
+        'outline-variant': '#364563',
+        'primary': '#00d9ff',
       },
       boxShadow: {
         'neon-cyan': '0 0 20px rgba(0, 217, 255, 0.5)',
@@ -35,8 +42,8 @@ const config: Config = {
       },
       keyframes: {
         'pulse-neon': {
-          '0%, 100%': { opacity: '1', textShadow: '0 0 20px rgba(0, 217, 255, 0.8)' },
-          '50%': { opacity: '0.7', textShadow: '0 0 30px rgba(0, 217, 255, 0.4)' },
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.7' },
         },
         'float': {
           '0%, 100%': { transform: 'translateY(0px)' },

@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CSS CUSTOM PROPERTIES — theme tokens
+   All components reference these vars. Toggling .dark on <html> switches
+   the entire app without touching individual component styles.
+───────────────────────────────────────────────────────────────────────────── */
+
+:root,
+html.dark {
+  /* Backgrounds */
+  --bg-page:        #060914;
+  --bg-card:        rgba(8, 11, 24, 0.85);
+  --bg-card-hover:  rgba(255,255,255,0.04);
+  --bg-input:       rgba(255,255,255,0.04);
+  --bg-input-hover: rgba(255,255,255,0.07);
+
+  /* Text */
+  --text-primary:   #f0f4ff;
+  --text-secondary: #b8bfd6;
+  --text-muted:     rgba(184,191,214,0.5);
+
+  /* Borders */
+  --border-subtle:  rgba(255,255,255,0.07);
+  --border-input:   rgba(255,255,255,0.08);
+  --border-hover:   rgba(255,255,255,0.15);
+
+  /* Glass panel */
+  --glass-bg:       rgba(8, 11, 24, 0.8);
+  --glass-border:   rgba(255,255,255,0.07);
+
+  /* Scrollbar */
+  --scroll-track:   rgba(6,9,20,0.5);
+  --scroll-thumb:   rgba(0,217,255,0.2);
+  --scroll-hover:   rgba(0,217,255,0.4);
+
+  color-scheme: dark;
+}
+
+html:not(.dark) {
+  /* Backgrounds */
+  --bg-page:        #f0f4ff;
+  --bg-card:        rgba(255,255,255,0.9);
+  --bg-card-hover:  rgba(0,0,0,0.03);
+  --bg-input:       rgba(0,0,0,0.04);
+  --bg-input-hover: rgba(0,0,0,0.07);
+
+  /* Text */
+  --text-primary:   #0a0e27;
+  --text-secondary: #3a4060;
+  --text-muted:     rgba(58,64,96,0.6);
+
+  /* Borders */
+  --border-subtle:  rgba(0,0,0,0.08);
+  --border-input:   rgba(0,0,0,0.12);
+  --border-hover:   rgba(0,0,0,0.2);
+
+  /* Glass panel */
+  --glass-bg:       rgba(255,255,255,0.85);
+  --glass-border:   rgba(0,0,0,0.08);
+
+  /* Scrollbar */
+  --scroll-track:   rgba(240,244,255,0.5);
+  --scroll-thumb:   rgba(0,153,204,0.3);
+  --scroll-hover:   rgba(0,153,204,0.5);
+
+  color-scheme: light;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BASE STYLES
+───────────────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  html {
+    background: var(--bg-page);
+    color: var(--text-primary);
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+
+  body {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   UTILITY CLASSES — use var() so they respond to theme automatically
+───────────────────────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  /* Glow */
+  .neon-glow        { box-shadow: 0 0 20px rgba(0,217,255,0.3); }
+  .neon-glow-purple { box-shadow: 0 0 20px rgba(157,78,221,0.3); }
+  .neon-glow-pink   { box-shadow: 0 0 20px rgba(247,37,133,0.3); }
+
+  /* Glass panel — responds to theme via CSS vars */
+  .glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    transition: background 0.25s ease, border-color 0.25s ease;
+  }
+
+  /* Gradient text */
+  .gradient-text      { @apply bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink bg-clip-text text-transparent; }
+  .gradient-text-cyan { @apply bg-gradient-to-r from-neon-cyan to-neon-blue bg-clip-text text-transparent; }
+
+  .card-hover  { @apply transition-all duration-300 hover:shadow-lg hover:scale-[1.02]; }
+  .border-neon { @apply border border-neon-cyan/20 hover:border-neon-cyan/40 transition-all duration-300; }
+  .font-headline { font-family: 'Space Grotesk', sans-serif; }
+
+  /* Theme-aware text helpers */
+  .text-page-primary   { color: var(--text-primary); }
+  .text-page-secondary { color: var(--text-secondary); }
+  .text-page-muted     { color: var(--text-muted); }
+
+  /* Theme-aware background helpers */
+  .bg-page  { background: var(--bg-page); }
+  .bg-card  { background: var(--bg-card); }
+  .bg-input { background: var(--bg-input); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SCROLLBAR
+───────────────────────────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: var(--scroll-track); }
+::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-hover); }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LIGHT MODE — override hardcoded dark values used in components
+   These selectors target the inline bg-[#060914] and similar patterns
+   that can't be changed via CSS vars alone.
+───────────────────────────────────────────────────────────────────────────── */
+
+html:not(.dark) body,
+html:not(.dark) [class*="bg-\[#060914\]"],
+html:not(.dark) [class*="bg-\[#0d1120\]"] {
+  background-color: var(--bg-page) !important;
+}
+
+/* Dashboard nav in light mode */
+html:not(.dark) .dash-nav {
+  background: rgba(240,244,255,0.85) !important;
+  border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Cards in light mode */
+html:not(.dark) .dash-card,
+html:not(.dark) .settings-card,
+html:not(.dark) .glass-card,
+html:not(.dark) .stat-card,
+html:not(.dark) .repo-table-wrap,
+html:not(.dark) .add-form-card,
+html:not(.dark) .login-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Text in light mode */
+html:not(.dark) .text-white,
+html:not(.dark) .text-on-surface,
+html:not(.dark) .text-on-background {
+  color: var(--text-primary) !important;
+}
+
+html:not(.dark) .text-on-surface-variant {
+  color: var(--text-secondary) !important;
+}
+
+/* Inputs in light mode */
+html:not(.dark) .field-input,
+html:not(.dark) .form-input {
+  background: var(--bg-input) !important;
+  border-color: var(--border-input) !important;
+  color: var(--text-primary) !important;
+}
+
+html:not(.dark) .field-input:focus,
+html:not(.dark) .form-input:focus {
+  border-color: rgba(0,153,204,0.5) !important;
+  box-shadow: 0 0 0 3px rgba(0,153,204,0.1) !important;
+}
+
+/* Dropdown in light mode */
+html:not(.dark) .profile-dropdown {
+  background: rgba(255,255,255,0.97) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
+}
+
+html:not(.dark) .dropdown-item {
+  color: #3a4060 !important;
+}
+html:not(.dark) .dropdown-item:hover {
+  background: rgba(0,0,0,0.04) !important;
+  color: #0a0e27 !important;
+}
+
+/* Repo table in light mode */
+html:not(.dark) .repo-row:hover {
+  background: rgba(0,0,0,0.02) !important;
+}
+html:not(.dark) .repo-table-head {
+  background: rgba(0,0,0,0.02) !important;
+  color: rgba(58,64,96,0.6) !important;
+}
+
+/* Aurora background in light mode — much more subtle */
+html:not(.dark) .aurora-1 {
+  background: radial-gradient(circle, rgba(0,153,204,0.08) 0%, transparent 70%) !important;
+}
+html:not(.dark) .aurora-2 {
+  background: radial-gradient(circle, rgba(100,50,180,0.06) 0%, transparent 70%) !important;
+}
+html:not(.dark) .aurora-3,
+html:not(.dark) .aurora-4 {
+  opacity: 0.4 !important;
+}
+
+/* Cyber grid in light mode — barely visible */
+html:not(.dark) .cyber-grid {
+  opacity: 0.015 !important;
+}
+
+/* ── Theme-aware background helper (used by AuroraBackground) ── */
+.theme-bg-page {
+  background: var(--bg-page);
+  transition: background 0.25s ease;
+}
+
+/* ── Light mode aurora overrides ── */
+html:not(.dark) .aurora-container .aurora-orb:nth-child(1) {
+  background: radial-gradient(circle, rgba(0,153,204,0.07) 0%, transparent 70%) !important;
+}
+html:not(.dark) .aurora-container .aurora-orb:nth-child(2) {
+  background: radial-gradient(circle, rgba(100,50,180,0.05) 0%, transparent 70%) !important;
+}
+html:not(.dark) .aurora-container .aurora-orb:nth-child(3),
+html:not(.dark) .aurora-container .aurora-orb:nth-child(4) {
+  opacity: 0.3;
+}
+html:not(.dark) .aurora-container .cyber-grid {
+  opacity: 0.01 !important;
+}
+html:not(.dark) .aurora-container .scanline {
+  background: linear-gradient(90deg, transparent, rgba(0,153,204,0.08), transparent) !important;
+}

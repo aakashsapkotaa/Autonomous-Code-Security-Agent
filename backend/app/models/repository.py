@@ -15,7 +15,11 @@ class Repository(BaseModel):
     user_id: str
     repo_url: str
     repo_name: str
+    description: Optional[str] = None
+    is_active: bool = True
+    last_scan_at: Optional[datetime] = None
     created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True

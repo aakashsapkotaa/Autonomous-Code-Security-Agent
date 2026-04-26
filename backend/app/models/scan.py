@@ -28,6 +28,11 @@ class ScanDetail(BaseModel):
     repo_id: str
     status: ScanStatus
     total_vulnerabilities: int = 0
+    critical_count: int = 0
+    high_count: int = 0
+    medium_count: int = 0
+    low_count: int = 0
     scan_started_at: Optional[datetime] = None
     scan_completed_at: Optional[datetime] = None
+    error_message: Optional[str] = None
     created_at: datetime

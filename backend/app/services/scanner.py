@@ -19,56 +19,63 @@ class SecurityScanner:
         self.temp_dir = None
     
     async def clone_repository(self, repo_url: str, branch: str = "main") -> Optional[str]:
-        """Clone a GitHub repository"""
+        """Clone a GitHub repository (shallow, single-branch for speed)."""
         try:
             self.temp_dir = tempfile.mkdtemp()
-            logger.info(f"Cloning {repo_url} to {self.temp_dir}")
-            
-            cmd = ["git", "clone", "--depth", "1", "--branch", branch, repo_url, self.temp_dir]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-            
+            logger.info(f"Cloning {repo_url}")
+
+            # --single-branch + --depth 1 = fastest possible clone
+            cmd = [
+                "git", "clone",
+                "--depth", "1",
+                "--single-branch",
+                "--branch", branch,
+                "--no-tags",
+                repo_url, self.temp_dir,
+            ]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+
             if result.returncode == 0:
-                logger.info(f"Successfully cloned {repo_url}")
                 return self.temp_dir
-            else:
-                logger.error(f"Failed to clone repository: {result.stderr}")
-                # Try without branch specification
-                logger.info("Retrying without branch specification...")
-                shutil.rmtree(self.temp_dir, ignore_errors=True)
-                self.temp_dir = tempfile.mkdtemp()
-                
-                cmd = ["git", "clone", "--depth", "1", repo_url, self.temp_dir]
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-                
-                if result.returncode == 0:
-                    logger.info(f"Successfully cloned {repo_url} (default branch)")
-                    return self.temp_dir
-                else:
-                    logger.error(f"Failed to clone repository: {result.stderr}")
-                    return None
+
+            # Retry without explicit branch (uses default branch)
+            shutil.rmtree(self.temp_dir, ignore_errors=True)
+            self.temp_dir = tempfile.mkdtemp()
+            cmd = ["git", "clone", "--depth", "1", "--single-branch", "--no-tags",
+                   repo_url, self.temp_dir]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+
+            if result.returncode == 0:
+                return self.temp_dir
+
+            logger.error(f"Clone failed: {result.stderr}")
+            return None
         except Exception as e:
             logger.error(f"Error cloning repository: {e}")
             return None
     
     async def run_bandit(self, repo_path: str) -> List[Dict]:
-        """Run Bandit Python security scanner"""
+        """Run Bandit Python security scanner."""
         try:
+            # Write to a temp file in the same temp dir (avoids /tmp on Windows)
+            report_path = os.path.join(repo_path, "_bandit_report.json")
             cmd = [
-                "bandit",
-                "-r", repo_path,
+                "bandit", "-r", repo_path,
                 "-f", "json",
-                "-o", "/tmp/bandit-report.json"
+                "-o", report_path,
+                "--quiet",
+                "--skip", "B101",   # skip assert warnings — too noisy
             ]
-            subprocess.run(cmd, capture_output=True, timeout=300)
-            
-            # Read results
-            if os.path.exists("/tmp/bandit-report.json"):
-                with open("/tmp/bandit-report.json", "r") as f:
+            subprocess.run(cmd, capture_output=True, timeout=120)
+
+            if os.path.exists(report_path):
+                with open(report_path, "r") as f:
                     data = json.load(f)
-                    return self._parse_bandit_results(data)
+                os.remove(report_path)
+                return self._parse_bandit_results(data)
             return []
         except Exception as e:
-            logger.error(f"Error running Bandit: {e}")
+            logger.error(f"Bandit error: {e}")
             return []
     
     def _parse_bandit_results(self, data: Dict) -> List[Dict]:
@@ -76,13 +83,13 @@ class SecurityScanner:
         vulnerabilities = []
         for result in data.get("results", []):
             vulnerabilities.append({
-                "file_path": result.get("filename", ""),
+                "file_path":          result.get("filename", ""),
                 "vulnerability_type": result.get("test_id", ""),
-                "severity": result.get("issue_severity", "low").lower(),
-                "description": result.get("issue_text", ""),
-                "line_number": result.get("line_number"),
-                "code_snippet": result.get("code", ""),
-                "tool": "bandit"
+                "severity":           result.get("issue_severity", "low").lower(),
+                "description":        result.get("issue_text", ""),
+                "line_number":        result.get("line_number"),
+                "code_snippet":       result.get("code", ""),   # ← was missing
+                "tool":               "bandit",
             })
         return vulnerabilities
     
@@ -136,21 +143,18 @@ class SecurityScanner:
         return vulnerabilities
     
     async def run_safety(self, repo_path: str) -> List[Dict]:
-        """Run Safety dependency checker"""
+        """Run Safety dependency checker."""
         try:
-            # Look for requirements.txt
             req_file = os.path.join(repo_path, "requirements.txt")
             if not os.path.exists(req_file):
                 return []
-            
             cmd = ["safety", "check", "--file", req_file, "--json"]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-            
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
             if result.stdout:
                 return self._parse_safety_results(result.stdout)
             return []
         except Exception as e:
-            logger.error(f"Error running Safety: {e}")
+            logger.error(f"Safety error: {e}")
             return []
     
     def _parse_safety_results(self, output: str) -> List[Dict]:
@@ -173,20 +177,16 @@ class SecurityScanner:
         return vulnerabilities
     
     async def scan_repository(self, repo_url: str, branch: str = "main") -> List[Dict]:
-        """
-        Run all security scans on a repository
-        
-        Returns list of vulnerabilities from all tools
-        """
+        """Run all security scans on a repository."""
         all_vulnerabilities = []
-        
+        self.temp_dir = None   # reset so caller can read it after scan
+
         try:
-            # Clone repository
             repo_path = await self.clone_repository(repo_url, branch)
             if not repo_path:
                 logger.error("Failed to clone repository")
                 return []
-            
+
             logger.info(f"Repository cloned to: {repo_path}")
             
             # Run all scanners

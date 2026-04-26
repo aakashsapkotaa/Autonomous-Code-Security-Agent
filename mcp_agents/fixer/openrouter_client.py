@@ -1,157 +1,158 @@
 """
-OpenRouter AI Client - Alternative to Ollama for AI-powered fixes
-Handles AI-powered code fix generation using OpenRouter API
+OpenRouter AI Client — generates security fix suggestions.
 """
 import httpx
 import json
-from typing import Dict, Optional
+import re
 import os
+import logging
+from typing import Dict, Optional
+
+logger = logging.getLogger(__name__)
+
 
 class OpenRouterClient:
     def __init__(self, api_key: str = None, model: str = None):
         self.api_key = api_key or os.getenv("OPENROUTER_API_KEY", "")
-        self.model = model or os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free")
+        self.model   = model   or os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free")
         self.base_url = "https://openrouter.ai/api/v1"
-        self.timeout = 120.0
-    
-    async def generate(
-        self,
-        prompt: str,
-        temperature: float = 0.7,
-        max_tokens: int = 2000
-    ) -> Dict:
-        """
-        Generate response from OpenRouter AI model
-        
-        Args:
-            prompt: The input prompt
-            temperature: Sampling temperature (0.0 to 1.0)
-            max_tokens: Maximum tokens to generate
-        
-        Returns:
-            Dict with 'response' and 'metadata'
-        """
-        if not self.api_key or self.api_key == "your-openrouter-key":
-            return {
-                "response": "AI service not configured. Please set OPENROUTER_API_KEY in backend/.env",
-                "metadata": {"error": "no_api_key"}
-            }
-        
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                payload = {
-                    "model": self.model,
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": prompt
-                        }
-                    ],
+        self.timeout  = 60.0
+
+    # ── Low-level call ────────────────────────────────────────────────────────
+
+    async def generate(self, prompt: str, temperature: float = 0.2, max_tokens: int = 800) -> Dict:
+        if not self.api_key or self.api_key in ("", "your-openrouter-key", "your_private_key"):
+            raise ValueError("OPENROUTER_API_KEY is not set in backend/.env")
+
+        logger.info(f"[openrouter] calling model={self.model} tokens={max_tokens}")
+
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            resp = await client.post(
+                f"{self.base_url}/chat/completions",
+                json={
+                    "model":      self.model,
+                    "messages":   [{"role": "user", "content": prompt}],
                     "temperature": temperature,
-                    "max_tokens": max_tokens
-                }
-                
-                headers = {
+                    "max_tokens":  max_tokens,
+                },
+                headers={
                     "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json"
-                }
-                
-                response = await client.post(
-                    f"{self.base_url}/chat/completions",
-                    json=payload,
-                    headers=headers
-                )
-                response.raise_for_status()
-                
-                result = response.json()
-                
-                return {
-                    "response": result["choices"][0]["message"]["content"],
-                    "metadata": {
-                        "model": result.get("model", self.model),
-                        "usage": result.get("usage", {}),
-                        "id": result.get("id", "")
-                    }
-                }
-        
-        except httpx.TimeoutException:
-            raise Exception(f"Request to OpenRouter timed out after {self.timeout}s")
-        except httpx.HTTPError as e:
-            raise Exception(f"HTTP error from OpenRouter: {str(e)}")
-        except Exception as e:
-            raise Exception(f"OpenRouter client error: {str(e)}")
-    
+                    "Content-Type":  "application/json",
+                    "HTTP-Referer":  "https://secureshift.io",
+                    "X-Title":       "SecureShift",
+                },
+            )
+            resp.raise_for_status()
+            result = resp.json()
+            content = result["choices"][0]["message"]["content"]
+            logger.debug(f"[openrouter] raw response: {content[:300]}")
+            return {"response": content, "metadata": result.get("usage", {})}
+
+    # ── Fix generation ────────────────────────────────────────────────────────
+
     async def generate_fix(
         self,
         vulnerability_type: str,
         severity: str,
         file_path: str,
         description: str,
-        code_snippet: Optional[str] = None
+        code_snippet: Optional[str] = None,
     ) -> Dict:
         """
-        Generate security fix for a vulnerability
-        
-        Returns:
-            Dict with 'suggested_fix', 'confidence', and 'explanation'
+        Returns dict with keys:
+          suggested_fix  — human-readable description
+          fixed_code     — actual replacement code (may equal suggested_fix as fallback)
+          confidence     — float 0-1
+          explanation    — why the fix works
         """
-        prompt = f"""You are a security expert. Analyze this vulnerability and provide a secure code fix.
+        snippet_block = ""
+        if code_snippet and code_snippet.strip():
+            snippet_block = f"\nVulnerable code:\n```\n{code_snippet.strip()[:600]}\n```\n"
 
-Vulnerability Details:
-- Type: {vulnerability_type}
-- Severity: {severity}
-- File: {file_path}
-- Description: {description}
-"""
-        
-        if code_snippet:
-            prompt += f"\nVulnerable Code:\n```\n{code_snippet}\n```\n"
-        
-        prompt += """
-Provide a JSON response with:
-1. suggested_fix: The corrected code or detailed fix instructions
-2. confidence: Your confidence score (0.0 to 1.0)
-3. explanation: Brief explanation of why this fix works
+        prompt = f"""You are a Python security expert. Fix this vulnerability.
 
-Response format:
-{"suggested_fix": "...", "confidence": 0.85, "explanation": "..."}"""
-        
+Type: {vulnerability_type}
+Severity: {severity}
+File: {file_path}
+Issue: {description}{snippet_block}
+
+Reply with ONLY valid JSON — no markdown fences, no extra text:
+{{"suggested_fix":"one sentence describing the fix","fixed_code":"the corrected replacement code","confidence":0.85,"explanation":"why this fix works"}}
+
+IMPORTANT: fixed_code must be the actual corrected Python code that replaces the vulnerable snippet above. Never set it to null."""
+
         try:
             result = await self.generate(prompt)
-            
-            # Try to parse JSON from the response
-            import re
-            json_match = re.search(r'\{.*\}', result["response"], re.DOTALL)
-            if json_match:
-                fix_data = json.loads(json_match.group())
-                return {
-                    "suggested_fix": fix_data.get("suggested_fix", "No fix generated"),
-                    "confidence": float(fix_data.get("confidence", 0.5)),
-                    "explanation": fix_data.get("explanation", "")
-                }
-            else:
-                # Fallback if JSON parsing fails
-                return {
-                    "suggested_fix": result["response"],
-                    "confidence": 0.5,
-                    "explanation": "AI response (JSON parsing failed)"
-                }
-        
-        except Exception as e:
+            raw = result["response"].strip()
+            logger.info(f"[openrouter] fix response for {vulnerability_type}: {raw[:200]}")
+
+            fix_data = self._parse_json(raw)
+
+            suggested = fix_data.get("suggested_fix") or description
+            fixed     = fix_data.get("fixed_code")
+
+            # Fallback: if model returned null/empty fixed_code, use suggested_fix
+            if not fixed or not str(fixed).strip():
+                logger.warning(f"[openrouter] fixed_code missing for {vulnerability_type}, using suggested_fix as fallback")
+                fixed = suggested
+
+            confidence = float(fix_data.get("confidence", 0.7))
+
+            logger.info(f"[openrouter] ✅ fix generated — confidence={confidence:.2f}, fixed_code_len={len(str(fixed))}")
+
             return {
-                "suggested_fix": f"Error: {str(e)}",
-                "confidence": 0.0,
-                "explanation": "Fix generation failed"
+                "suggested_fix": suggested,
+                "fixed_code":    str(fixed).strip(),
+                "confidence":    confidence,
+                "explanation":   fix_data.get("explanation", ""),
             }
-    
-    async def check_health(self) -> bool:
-        """Check if OpenRouter service is available"""
+
+        except Exception as e:
+            logger.error(f"[openrouter] ❌ generate_fix failed for {vulnerability_type}: {e}")
+            # Return a meaningful fallback so the scan still saves something
+            fallback = f"# TODO: Fix {vulnerability_type} — {description}"
+            return {
+                "suggested_fix": f"Fix {vulnerability_type}: {description}",
+                "fixed_code":    fallback,
+                "confidence":    0.1,
+                "explanation":   f"Auto-generated placeholder: {str(e)}",
+            }
+
+    # ── JSON parser ───────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _parse_json(text: str) -> dict:
+        """Extract JSON from model response, handling markdown fences."""
+        # Strip markdown code fences if present
+        text = re.sub(r"^```(?:json)?\s*", "", text.strip(), flags=re.MULTILINE)
+        text = re.sub(r"\s*```$", "", text.strip(), flags=re.MULTILINE)
+
+        # Try direct parse first
         try:
-            if not self.api_key or self.api_key == "your-openrouter-key":
+            return json.loads(text)
+        except json.JSONDecodeError:
+            pass
+
+        # Find first {...} block
+        m = re.search(r"\{.*\}", text, re.DOTALL)
+        if m:
+            try:
+                return json.loads(m.group())
+            except json.JSONDecodeError:
+                pass
+
+        logger.warning(f"[openrouter] could not parse JSON from: {text[:200]}")
+        return {}
+
+    async def check_health(self) -> bool:
+        try:
+            if not self.api_key or self.api_key in ("", "your-openrouter-key", "your_private_key"):
                 return False
             async with httpx.AsyncClient(timeout=5.0) as client:
-                headers = {"Authorization": f"Bearer {self.api_key}"}
-                response = await client.get(f"{self.base_url}/models", headers=headers)
-                return response.status_code == 200
-        except:
+                resp = await client.get(
+                    f"{self.base_url}/models",
+                    headers={"Authorization": f"Bearer {self.api_key}"},
+                )
+                return resp.status_code == 200
+        except Exception:
             return False

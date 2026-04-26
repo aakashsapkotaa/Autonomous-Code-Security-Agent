@@ -2,10 +2,18 @@
 SecureShift FastAPI Backend
 Main application entrypoint
 """
+import sys
+import os
+
+# Add project root to path so mcp_agents is importable when running from backend/
+_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import scans, repositories, vulnerabilities, health, github, chatbot
+from app.api.routes import scans, repositories, vulnerabilities, health, github, chatbot, cves, profile, admin
 
 # Import models to ensure they're registered
 from app.models import scan, repository, vulnerability, ai_fix
@@ -24,7 +32,8 @@ app.add_middleware(
     allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*", "x-user-id", "X-User-Id", "Content-Type", "Authorization"],
+    expose_headers=["*"],
 )
 
 # Include routers
@@ -34,6 +43,9 @@ app.include_router(repositories.router, prefix="/api/repositories", tags=["repos
 app.include_router(vulnerabilities.router, prefix="/api/vulnerabilities", tags=["vulnerabilities"])
 app.include_router(github.router, prefix="/api/github", tags=["github"])
 app.include_router(chatbot.router, prefix="/api/chatbot", tags=["chatbot"])
+app.include_router(cves.router, prefix="/api/cves", tags=["cves"])
+app.include_router(profile.router, prefix="/api", tags=["profile"])
+app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 
 @app.get("/")
 async def root():

@@ -1,7 +1,7 @@
 """
 Repository management endpoints
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from app.models.repository import Repository, RepositoryCreate
 from app.core.db import db
 from typing import List, Optional, Dict
@@ -10,52 +10,72 @@ import logging
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
 @router.get("/")
-def list_repositories(user_id: Optional[str] = None) -> List[Dict]:
-    """
-    List all repositories for a user
-    """
-    repositories = db.list_repositories(user_id)
-    return repositories
+def list_repositories(x_user_id: Optional[str] = Header(None)) -> List[Dict]:
+    """List all repositories for the authenticated user."""
+    return db.list_repositories(x_user_id)
+
 
 @router.post("/")
-def create_repository(repo_data: RepositoryCreate) -> Dict:
-    """
-    Add a new repository
-    """
-    # If user_id is provided, ensure the user exists
-    if repo_data.user_id:
-        existing_user = db.get_user_by_id(repo_data.user_id)
-        if not existing_user:
-            logger.warning(f"User {repo_data.user_id} does not exist, attempting to create...")
-            # Try to create a user record if it doesn't exist
-            # This could happen if Supabase Auth created a user but our trigger didn't fire
-            user_created = db.create_user({
-                'id': repo_data.user_id,
-                'email': f'user_{repo_data.user_id}@example.com',
-                'name': 'Unknown User'
-            })
-            if not user_created:
-                raise HTTPException(
-                    status_code=400, 
-                    detail=f"User {repo_data.user_id} does not exist in the database. Please ensure you are authenticated."
-                )
-    
-    repo = db.create_repository(repo_data.dict())
-    
+def create_repository(
+    repo_data: RepositoryCreate,
+    x_user_id: Optional[str] = Header(None),
+) -> Dict:
+    """Add a new repository."""
+    # Use header user_id if not in body
+    user_id = repo_data.user_id or x_user_id
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    # Fast path: try insert directly — let DB FK catch missing user
+    # Only do the user-existence check if the insert fails
+    data = repo_data.dict()
+    data["user_id"] = user_id
+
+    repo = db.create_repository(data)
+    if repo:
+        return repo
+
+    # Insert failed — check if user row is missing (auth trigger may not have fired)
+    existing = db.get_user_by_id(user_id)
+    if not existing:
+        logger.warning(f"User {user_id} missing from users table, auto-creating stub")
+        db.create_user({
+            "id":    user_id,
+            "email": f"user_{user_id[:8]}@placeholder.local",
+            "name":  "User",
+        })
+
+    # Retry once
+    repo = db.create_repository(data)
     if not repo:
         raise HTTPException(status_code=400, detail="Failed to create repository")
-    
     return repo
+
 
 @router.get("/{repo_id}")
 def get_repository(repo_id: str) -> Dict:
-    """
-    Get repository by ID
-    """
+    """Get repository by ID."""
     repo = db.get_repository(repo_id)
-    
     if not repo:
         raise HTTPException(status_code=404, detail="Repository not found")
-    
     return repo
+
+
+@router.delete("/{repo_id}")
+def delete_repository(
+    repo_id: str,
+    x_user_id: Optional[str] = Header(None),
+) -> Dict:
+    """Delete a repository."""
+    repo = db.get_repository(repo_id)
+    if not repo:
+        raise HTTPException(status_code=404, detail="Repository not found")
+    if repo.get("user_id") != x_user_id:
+        raise HTTPException(status_code=403, detail="Not your repository")
+    try:
+        db.client.table("repositories").delete().eq("id", repo_id).execute()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"status": "ok"}

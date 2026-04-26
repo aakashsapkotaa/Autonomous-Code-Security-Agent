@@ -1,14 +1,19 @@
 """
-GitHub OAuth and Webhook Integration
+GitHub OAuth, Webhook Integration, and PR Agent
 """
-from fastapi import APIRouter, Request, HTTPException, Depends
+from fastapi import APIRouter, Request, HTTPException, Depends, BackgroundTasks
 from pydantic import BaseModel
 import httpx
 import hmac
 import hashlib
+import logging
 from app.core.config import settings
-from app.core.db import SupabaseDB
+from app.core.db import SupabaseDB, get_database
 from app.core.auth import get_current_user
+from app.models.pr import CreatePRRequest, CreatePRResponse
+from app.services.pr_agent import PRAgent, get_pr_agent
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -147,3 +152,50 @@ async def import_github_repos(
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
+
+
+# ── PR Agent ──────────────────────────────────────────────────────────────────
+
+@router.post("/create-pr", response_model=CreatePRResponse, summary="Create a security fix PR")
+async def create_pr(
+    payload: CreatePRRequest,
+    db: SupabaseDB = Depends(get_database),
+):
+    """
+    Apply AI-generated fixes to a GitHub repository and open a Draft Pull Request.
+
+    Steps performed:
+    1. Load vulnerabilities + AI fixes for the given scan_id from Supabase.
+    2. For each fix that has `fixed_code`, patch the file via GitHub Tree API.
+    3. Commit all changes to a new branch: `fix/security-patches-{timestamp}`.
+    4. Open a Draft PR titled "🔒 SecureShift Automated Security Fixes".
+    5. Persist the PR URL back to the scan record in Supabase.
+    """
+    # Validate scan exists
+    scan = db.get_scan(payload.scan_id)
+    if not scan:
+        raise HTTPException(status_code=404, detail=f"Scan '{payload.scan_id}' not found")
+
+    # Prefer per-request token, fall back to server env
+    token = payload.github_token or settings.GITHUB_TOKEN
+    if not token:
+        raise HTTPException(
+            status_code=400,
+            detail="No GitHub token provided. Set GITHUB_TOKEN in .env or pass github_token in the request body.",
+        )
+
+    try:
+        agent = get_pr_agent(token)
+        result = await agent.create_pr_for_scan(
+            scan_id=payload.scan_id,
+            repo_url=payload.repo_url,
+            base_branch=payload.base_branch,
+            github_token=token,
+        )
+        return CreatePRResponse(**result)
+
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.exception("PR Agent failed")
+        raise HTTPException(status_code=500, detail=f"PR creation failed: {str(e)}")
