@@ -12,6 +12,9 @@ class SupabaseDB:
     """Supabase database client"""
     
     def __init__(self):
+        if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY:
+            self.client = None
+            return
         self.client: Client = create_client(
             settings.SUPABASE_URL,
             settings.SUPABASE_SERVICE_ROLE_KEY

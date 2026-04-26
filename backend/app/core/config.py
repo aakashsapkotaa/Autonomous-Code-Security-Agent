@@ -19,10 +19,10 @@ class Settings(BaseSettings):
         "https://secureshift.vercel.app"
     ]
     
-    # Supabase
-    SUPABASE_URL: str
-    SUPABASE_KEY: str
-    SUPABASE_SERVICE_ROLE_KEY: str
+    # Supabase — required in production, optional in CI (tests skip DB calls)
+    SUPABASE_URL: str = ""
+    SUPABASE_KEY: str = ""
+    SUPABASE_SERVICE_ROLE_KEY: str = ""
     
     # OpenRouter AI
     OPENROUTER_API_KEY: str = ""
